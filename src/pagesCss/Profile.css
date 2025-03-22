@@ -1,0 +1,136 @@
+.profile-container {
+    max-width: 935px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+  
+  .profile-header {
+    display: flex;
+    margin-bottom: 44px;
+  }
+  
+  .profile-avatar {
+    margin-right: 30px;
+    flex-shrink: 0;
+  }
+  
+  .profile-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profile-user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .username {
+    margin-right: 20px !important;
+  }
+  
+  .follow-button,
+  .edit-profile-button {
+    height: 32px;
+  }
+  
+  .profile-stats {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .stat {
+    margin-right: 40px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .stat-value {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  .stat-label {
+    color: #8e8e8e;
+    font-size: 14px;
+  }
+  
+  .profile-bio {
+    max-width: 400px;
+  }
+  
+  .full-name {
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .bio {
+    white-space: pre-line;
+  }
+  
+  .profile-tabs {
+    margin-bottom: 20px;
+    border-top: 1px solid #dbdbdb;
+  }
+  
+  .profile-content {
+    min-height: 300px;
+  }
+  
+  .no-posts,
+  .saved-posts,
+  .tagged-posts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    color: #8e8e8e;
+  }
+  
+
+
+
+  .stat {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .stat:hover {
+    opacity: 0.8;
+  }
+  
+  .stat:active {
+    transform: scale(0.95);
+  }
+  @media (max-width: 735px) {
+    .profile-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .profile-avatar {
+      margin-right: 0;
+      margin-bottom: 20px;
+    }
+    
+    .profile-stats {
+      justify-content: center;
+    }
+    
+    .profile-bio {
+      text-align: center;
+      margin: 0 auto;
+    }
+    
+    .profile-user-info {
+      flex-direction: column;
+    }
+    
+    .username {
+      margin-right: 0 !important;
+      margin-bottom: 10px !important;
+    }
+  }
+
