@@ -20,7 +20,7 @@ const PostGrid = ({ posts }) => {
             <CardMedia
               component="img"
               height="200"
-              image={`http://localhost:5000${post.image}`} // Ensure full URL
+              image={`https://social-backend-1-qi8q.onrender.com${post.image}`} // Ensure full URL
               alt="User Post"
             />
           </Card>

@@ -7,7 +7,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import socket from '../services/socket';
 import "../pagesCss/chat.css";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);

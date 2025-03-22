@@ -103,7 +103,7 @@ const PostUpload = () => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/posts/upload", formData, {
+      const response = await axios.post("https://social-backend-1-qi8q.onrender.com/api/posts/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Avatar, Button, TextField, Typography, Box, CircularProgress, Alert } from '@mui/material';
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
 
 const EditProfile = () => {
   const { userId } = useParams();
@@ -173,7 +173,7 @@ const EditProfile = () => {
       
       <Box sx={{ mb: 3, textAlign: 'center' }}>
         <Avatar
-          src={userData.profilePic ? `http://localhost:5000${userData.profilePic}` : ''}
+          src={userData.profilePic ? `https://social-backend-1-qi8q.onrender.com${userData.profilePic}` : ''}
           alt="Profile Picture"
           sx={{ width: 100, height: 100, margin: '0 auto', mb: 2 }}
         />

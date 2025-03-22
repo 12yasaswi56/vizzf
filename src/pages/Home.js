@@ -17,7 +17,7 @@ import StoryUpload from "../components/StoryUpload";
 
 import socket from '../services/socket';
 // Define API base URL
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
 
 const Home = () => {
     // ... (your existing state)
@@ -71,7 +71,7 @@ const Home = () => {
                 ...post,
                 // Fix the image URL - make sure it's fully qualified
                 image: post.image ?
-                    (post.image.startsWith('http') ? post.image : `http://localhost:5000${post.image}`)
+                    (post.image.startsWith('http') ? post.image : `https://social-backend-1-qi8q.onrender.com${post.image}`)
                     : null,
             }));
             setPosts(updatedPosts);
@@ -407,7 +407,7 @@ const handleLike = async (postId) => {
   const getProfilePicUrl = (profilePic) => {
     if (!profilePic) return "/default-avatar.png";
     if (profilePic.startsWith('http')) return profilePic;
-    return `http://localhost:5000${profilePic}`;
+    return `https://social-backend-1-qi8q.onrender.com${profilePic}`;
 };
 return (
   <div className="home-container">
@@ -453,7 +453,7 @@ return (
                           <h3>Search Results</h3>
                           {searchResults.map((user) => (
                               <div key={user._id} className="search-result-item">
-                                  <Avatar src={`http://localhost:5000${user.profilePic}`} />
+                                  <Avatar src={`https://social-backend-1-qi8q.onrender.com${user.profilePic}`} />
                                   <p>{user.username}</p>
                                   {currentUser && currentUser._id !== user._id && (
                                       <Button
@@ -518,7 +518,7 @@ return (
         >
             <div className="story-avatar-container has-story">
                 <Avatar
-                    src={story.user?.profilePic ? `http://localhost:5000${story.user.profilePic}` : "/default-avatar.png"}
+                    src={story.user?.profilePic ? `https://social-backend-1-qi8q.onrender.com${story.user.profilePic}` : "/default-avatar.png"}
                     className="story-avatar"
                 />
             </div>
@@ -537,7 +537,7 @@ return (
     <div key={post._id} className="post">
         <div className="post-header">
             <Avatar
-                src={post.user?.profilePic ? `http://localhost:5000${post.user.profilePic}` : "/default-avatar.png"}
+                src={post.user?.profilePic ? `https://social-backend-1-qi8q.onrender.com${post.user.profilePic}` : "/default-avatar.png"}
             />
             <p>{post.user?.username || "Anonymous"}</p>
         </div>
@@ -563,7 +563,7 @@ return (
                     <span className="pdf-filename">{post.title || "Research Paper"}</span>
                 </div>
                 <a 
-                    href={`http://localhost:5000${post.image}`} 
+                    href={`https://social-backend-1-qi8q.onrender.com${post.image}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="pdf-download-btn"
@@ -615,7 +615,7 @@ return (
         {/* Comment input */}
         <div className="comment-input">
             <Avatar
-                src={currentUser?.profilePic ? `http://localhost:5000${currentUser.profilePic}` : "/default-avatar.png"}
+                src={currentUser?.profilePic ? `https://social-backend-1-qi8q.onrender.com${currentUser.profilePic}` : "/default-avatar.png"}
                 className="comment-avatar"
             />
             <input
@@ -634,7 +634,7 @@ return (
                 post.comments.map((comment, index) => (
                     <div key={index} className="comment">
                         <Avatar
-                            src={comment.user?.profilePic ? `http://localhost:5000${comment.user.profilePic}` : "/default-avatar.png"}
+                            src={comment.user?.profilePic ? `https://social-backend-1-qi8q.onrender.com${comment.user.profilePic}` : "/default-avatar.png"}
                             className="comment-avatar"
                         />
                         <div className="comment-content">

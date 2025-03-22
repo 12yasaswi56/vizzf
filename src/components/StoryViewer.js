@@ -22,7 +22,7 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory }) => {
       try {
         const token = localStorage.getItem('auth-token');
         if (token) {
-          await axios.post(`http://localhost:5000/api/stories/${story._id}/view`, {}, {
+          await axios.post(`https://social-backend-1-qi8q.onrender.com/api/stories/${story._id}/view`, {}, {
             headers: { 'x-auth-token': token }
           });
         }
@@ -106,7 +106,7 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory }) => {
     }
     
     // Otherwise, construct the full URL
-    return `http://localhost:5000${path}`;
+    return `https://social-backend-1-qi8q.onrender.com${path}`;
   };
   
   return (

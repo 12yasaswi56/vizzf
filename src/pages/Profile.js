@@ -8,7 +8,7 @@ import socket from '../services/socket';
 import FollowersFollowingModal from '../components/FollowersFollowingModal'; // Import the modal component
 
 // API base URL
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -177,7 +177,7 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-header">
         <Avatar 
-          src={profileData.profilePic ? `http://localhost:5000${profileData.profilePic}` : ''} 
+          src={profileData.profilePic ? `https://social-backend-1-qi8q.onrender.com${profileData.profilePic}` : ''} 
           alt={profileData.username} 
           className="profile-avatar"
           sx={{ width: 120, height: 120 }}

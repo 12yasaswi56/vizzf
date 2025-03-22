@@ -25,7 +25,7 @@
 
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/auth"; // Adjust based on backend config
+const API_URL = "https://social-backend-1-qi8q.onrender.com/api/auth"; // Adjust based on backend config
 
 export const loginUser = async (credentials) => {
   try {
