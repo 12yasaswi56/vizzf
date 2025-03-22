@@ -563,7 +563,7 @@ return (
                     <span className="pdf-filename">{post.title || "Research Paper"}</span>
                 </div>
                 <a 
-                    href={`https://social-backend-1-qi8q.onrender.com${post.image}`} 
+                    href={`${post.image}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="pdf-download-btn"
