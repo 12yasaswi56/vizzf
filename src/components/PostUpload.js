@@ -136,12 +136,12 @@ const PostUpload = () => {
           Choose File (Images or PDF)
         </label>
         <input
-          id="file-upload"
-          type="file"
-          accept="image/*,application/pdf"
-          onChange={handleFileChange}
-          className="file-input"
-        />
+  id="file-upload"
+  type="file"
+  accept="image/jpeg,image/png,image/gif,application/pdf,.pdf"
+  onChange={handleFileChange}
+  className="file-input"
+/>
         <span className="file-name">
           {file ? file.name : "No file chosen"}
         </span>

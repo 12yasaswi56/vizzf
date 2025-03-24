@@ -329,39 +329,70 @@ const Chat = () => {
               <h3>{getConversationName(activeConversation)}</h3>
             </div>
 
-            <div className="messages-container">
-              {loading ? (
-                <p className="loading">Loading messages...</p>
-              ) : (
-                <>
-                  {messages.length === 0 ? (
-                    <p className="no-messages">No messages yet. Say hello!</p>
-                  ) : (
-                    messages.map((message, index) => {
-                      const isSender = isCurrentUserMessage(message);
-                      const showAvatar = shouldShowAvatar(message, index);
-                      return (
-                        <div key={message._id || index} className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}>
-                          {!isSender && showAvatar && (
-                            <Avatar 
-                              src={message.senderId.profilePic || "/default-avatar.png"} 
-                              className="message-avatar"
-                              sx={{ width: 28, height: 28 }}
-                            />
-                          )}
-                          {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
-                          <div className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}>
-                            <p>{message.content}</p>
-                            <span className="message-time">{formatTime(message.createdAt)}</span>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                  <div ref={messagesEndRef} />
-                </>
+            
+
+<div className="messages-container">
+  {loading ? (
+    <p className="loading">Loading messages...</p>
+  ) : (
+    <>
+      {messages.length === 0 ? (
+        <p className="no-messages">No messages yet. Say hello!</p>
+      ) : (
+        messages.map((message, index) => {
+          const isSender = isCurrentUserMessage(message);
+          const showAvatar = shouldShowAvatar(message, index);
+          const hasPostReference = message.postReference && message.postReference.postId;
+          console.log('Rendering message:', message._id, 'hasPostRef:', !!message.postReference?.postId);
+  if (message.postReference) {
+    console.log('PostRef details:', JSON.stringify(message.postReference));
+  }
+  
+          return (
+            <div key={message._id || index} className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}>
+              {!isSender && showAvatar && (
+                <Avatar 
+                  src={message.senderId.profilePic || "/default-avatar.png"} 
+                  className="message-avatar"
+                  sx={{ width: 28, height: 28 }}
+                />
               )}
+              {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
+              <div className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}>
+                <p>{message.content}</p>
+                
+                {/* Display shared post if exists */}
+{/* Display shared post if exists */}
+{hasPostReference && message.postReference.imageUrl && (
+          <div className="shared-post-preview" onClick={() => window.location.href = `/post/${message.postReference.postId}`}>
+            <img
+              src={message.postReference.imageUrl}
+              alt="Shared post"
+              className="shared-post-image"
+              onError={(e) => {
+                console.error(`Failed to load image: ${message.postReference.imageUrl}`);
+                e.target.style.display = "none";
+              }}
+            />
+            <div className="shared-post-info">
+              <p className="shared-post-caption">
+                {message.postReference.caption || "No caption"}
+              </p>
+              <p className="shared-post-hint">Click to view post</p>
             </div>
+          </div>
+        )}
+                
+                <span className="message-time">{formatTime(message.createdAt)}</span>
+              </div>
+            </div>
+          );
+        })
+      )}
+      <div ref={messagesEndRef} />
+    </>
+  )}
+</div>
 
             <div className="message-input-container">
               <input

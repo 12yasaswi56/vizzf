@@ -37,7 +37,10 @@ const Home = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
-    
+    const [showShareModal, setShowShareModal] = useState(false);
+const [followers, setFollowers] = useState([]);
+const [selectedUsers, setSelectedUsers] = useState([]);
+const [currentPostToShare, setCurrentPostToShare] = useState(null);
     // State for new post
     const [newPost, setNewPost] = useState({
         caption: "",
@@ -386,24 +389,107 @@ const handleLike = async (postId) => {
     }
   };
   
-  // Fix the handleShare function
-  const handleShare = async (postId) => {
+  const fetchFollowers = async () => {
     try {
-        if (!currentUser || !currentUser._id) {
-            alert("User session expired. Please log in again.");
+        const token = localStorage.getItem("auth-token"); // Get token from localStorage
+        if (!token) {
+            console.error("No auth token found, user may not be logged in.");
             return;
         }
-  
-        await axios.post(`${API_BASE_URL}/posts/${postId}/share`, {
-            userId: currentUser._id,
-            shareType: 'internal' // or whatever type you want
+
+        const response = await axios.get(`${API_BASE_URL}/profile/${currentUser._id}/followers`, {
+            headers: { "x-auth-token": token } // Pass token in request headers
         });
-  
-        alert("Post shared successfully!");
-    } catch (err) {
-        console.error("Share action failed", err);
+
+        setFollowers(response.data);
+    } catch (error) {
+        console.error("Error fetching followers:", error.response?.data || error.message);
     }
-  };
+};
+
+
+const handleShare = async (postId) => {
+    setCurrentPostToShare(postId);
+    setShowShareModal(true);
+    fetchFollowers();
+    setSelectedUsers([]); // Reset selection
+};
+
+// In Home.js, update the confirmShare function:
+
+const confirmShare = async () => {
+    try {
+        // 1. First share the post through the regular sharing endpoint
+        await axios.post(`${API_BASE_URL}/posts/${currentPostToShare}/share`, {
+            userId: currentUser._id,
+            selectedUserIds: selectedUsers
+        });
+        
+        // 2. For each selected user, create or use an existing conversation and send the post as a message
+        for (const recipientId of selectedUsers) {
+            // Get or create a conversation with this user
+            const conversationResponse = await axios.post(`${API_BASE_URL}/conversations`, {
+                participants: [currentUser._id, recipientId]
+            });
+            
+            const conversationId = conversationResponse.data._id;
+            
+            // Find the post details
+            const sharedPost = posts.find(post => post._id === currentPostToShare);
+            if (!sharedPost) {
+                console.error("Could not find post with ID:", currentPostToShare);
+                continue;
+            }
+             // Ensure we have a valid image URL
+             const imageUrl = sharedPost.image || null;
+             if (!imageUrl) {
+                 console.warn("Shared post has no image:", currentPostToShare);
+             }
+            // Create a message with post reference
+            const messageContent = `Shared a post: "${sharedPost.caption || 'No caption'}"`;
+            // Prepare post reference with validated data
+            const postReference = {
+                postId: currentPostToShare,
+                imageUrl: imageUrl,
+                caption: sharedPost.caption || ''
+            };
+            
+            console.log("Sending message with post reference:", postReference);
+            // Send message with post reference
+            await axios.post(`${API_BASE_URL}/messages`, {
+                conversationId: conversationId,
+                senderId: currentUser._id,
+                content: messageContent,
+                postReference: {
+                    postId: currentPostToShare,
+                    imageUrl: sharedPost.image,
+                    caption: sharedPost.caption
+                }
+            });
+            
+            // Emit socket event to notify recipient
+            socket.emit('chatMessage', {
+                conversationId,
+                message: {
+                    senderId: currentUser,
+                    content: messageContent,
+                    postReference: {
+                        postId: currentPostToShare,
+                        imageUrl: sharedPost.image,
+                        caption: sharedPost.caption
+                    },
+                    createdAt: new Date()
+                }
+            });
+        }
+        
+        alert("Post shared successfully to followers' chats!");
+        setShowShareModal(false);
+    } catch (error) {
+        console.error("Share action failed", error);
+        alert("Failed to share post: " + (error.response?.data?.message || error.message));
+    }
+};
   const getProfilePicUrl = (profilePic) => {
     if (!profilePic) return "/default-avatar.png";
     if (profilePic.startsWith('http')) return profilePic;
@@ -559,7 +645,7 @@ return (
         {post.fileType === 'pdf' ? (
             <div className="pdf-container">
                 <div className="pdf-preview">
-                    <img src="/pdf-icon.png" alt="PDF Document" className="pdf-icon" />
+                    <img src="/pdf.png" alt="PDF Document" className="pdf-icon" />
                     <span className="pdf-filename">{post.title || "Research Paper"}</span>
                 </div>
                 <a 
@@ -695,7 +781,7 @@ return (
         <input
             id="file-upload"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/gif,application/pdf,.pdf"
             onChange={handleFileChange}
             className="file-input"
         />
@@ -716,7 +802,33 @@ return (
 </div>
 </div>
 )}
-
+{/* Share Modal */}
+{showShareModal && (
+    <div className="modal-overlay">
+        <div className="modal">
+            <h3>Select Followers to Share With</h3>
+            <ul>
+                {followers.map(follower => (
+                    <li key={follower._id}>
+                        <input 
+                            type="checkbox" 
+                            value={follower._id} 
+                            onChange={(e) => {
+                                const checked = e.target.checked;
+                                setSelectedUsers(prev =>
+                                    checked ? [...prev, follower._id] : prev.filter(id => id !== follower._id)
+                                );
+                            }}
+                        />
+                        {follower.username}
+                    </li>
+                ))}
+            </ul>
+            <button onClick={confirmShare}>Confirm Share</button>
+            <button onClick={() => setShowShareModal(false)}>Cancel</button>
+        </div>
+    </div>
+)}
 {/* Story Upload Modal */}
 {showStoryUpload && (
 <StoryUpload
