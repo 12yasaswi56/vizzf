@@ -1,9 +1,10 @@
 import { io } from 'socket.io-client';
 
 // Create a socket instance
-const socket = io('https://social-backend-1-qi8q.onrender.com', {
+const socket = io('http://localhost:5000', {
   withCredentials: true,
-  autoConnect: false
+  autoConnect: false,
+  transports: ["websocket"]
 });
 
 // Socket event listeners for debugging

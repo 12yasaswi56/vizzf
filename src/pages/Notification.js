@@ -4,7 +4,7 @@ import { Avatar } from "@mui/material";
 import socket from "../services/socket"; 
 import "../pagesCss/Notification.css";
 
-const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
+const API_BASE_URL = "https://localhost:5000/api";
 
 const Notification = () => {
     const [notifications, setNotifications] = useState([]);

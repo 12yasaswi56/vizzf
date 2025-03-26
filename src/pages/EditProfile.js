@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Avatar, Button, TextField, Typography, Box, CircularProgress, Alert } from '@mui/material';
 
-const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 const EditProfile = () => {
   const { userId } = useParams();
@@ -11,7 +11,10 @@ const EditProfile = () => {
   const [userData, setUserData] = useState({
     username: '',
     bio: '',
-    profilePic: ''
+    profilePic: '',
+    designation: '',
+    role: '',
+    linkedinUrl: ''
   });
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -120,11 +123,14 @@ const EditProfile = () => {
         return;
       }
       
-      // Send the updated profile data including the profilePic
+      // Send the updated profile data including the new fields
       await axios.put(`${API_BASE_URL}/profile/${userId}/update`, {
         username: userData.username,
         bio: userData.bio,
-        profilePic: userData.profilePic
+        profilePic: userData.profilePic,
+        designation: userData.designation,
+        role: userData.role,
+        linkedinUrl: userData.linkedinUrl
       }, {
         headers: { 'x-auth-token': token }
       });
@@ -173,7 +179,7 @@ const EditProfile = () => {
       
       <Box sx={{ mb: 3, textAlign: 'center' }}>
         <Avatar
-          src={userData.profilePic ? `https://social-backend-1-qi8q.onrender.com${userData.profilePic}` : ''}
+          src={userData.profilePic ? `http://localhost:5000${userData.profilePic}` : ''}
           alt="Profile Picture"
           sx={{ width: 100, height: 100, margin: '0 auto', mb: 2 }}
         />
@@ -204,6 +210,44 @@ const EditProfile = () => {
           onChange={handleChange}
           fullWidth
           margin="normal"
+        />
+      </Box>
+      
+      {/* New fields for designation and role */}
+      <Box sx={{ mb: 2 }}>
+        <TextField
+          label="Designation"
+          name="designation"
+          value={userData.designation || ''}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          placeholder="e.g., Software Engineer, Product Manager"
+        />
+      </Box>
+      
+      <Box sx={{ mb: 2 }}>
+        <TextField
+          label="Role"
+          name="role"
+          value={userData.role || ''}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          placeholder="e.g., Team Lead, Frontend Developer"
+        />
+      </Box>
+      
+      {/* LinkedIn URL field */}
+      <Box sx={{ mb: 2 }}>
+        <TextField
+          label="LinkedIn Profile URL"
+          name="linkedinUrl"
+          value={userData.linkedinUrl || ''}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          placeholder="https://linkedin.com/in/yourprofile"
         />
       </Box>
       

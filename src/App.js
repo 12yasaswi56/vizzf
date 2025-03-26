@@ -11,7 +11,10 @@ import EditProfile from "./pages/EditProfile";
 import PostDetail from "./pages/PostDetail";
 import Notification from "./pages/Notification";
 const App = () => {
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    return JSON.parse(localStorage.getItem("user")) || null;
+  });
 
   useEffect(() => {
     if (!CometChat) {

@@ -181,14 +181,16 @@
 .posts-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  align-items: center;
+  gap: 20px;
 }
 
 .post {
-  background-color: white;
-  border: 1px solid #dbdbdb;
-  border-radius: 8px;
-  overflow: hidden;
+  width: 500px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .post-header {
@@ -737,8 +739,66 @@
 .modal button:hover {
   opacity: 0.9;
 }
+.story-item {
+    position: relative;
+}
 
+.delete-story-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(255, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+}
 
+.tagged-users-section {
+  margin-top: 10px;
+}
+
+.tagged-users {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tagged-user {
+  display: flex;
+  align-items: center;
+  background: #f1f1f1;
+  padding: 5px 10px;
+  border-radius: 15px;
+}
+
+.tagged-user-profile-pic {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.tagged-username {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.tag-button {
+  background: #0095f6;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+}
 
 /*
 .home-container {

@@ -8,7 +8,7 @@ import socket from '../services/socket';
 import FollowersFollowingModal from '../components/FollowersFollowingModal'; // Import the modal component
 
 // API base URL
-const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -177,7 +177,7 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-header">
         <Avatar 
-          src={profileData.profilePic ? `https://social-backend-1-qi8q.onrender.com${profileData.profilePic}` : ''} 
+          src={profileData.profilePic ? `http://localhost:5000${profileData.profilePic}` : ''} 
           alt={profileData.username} 
           className="profile-avatar"
           sx={{ width: 120, height: 120 }}
@@ -233,6 +233,24 @@ const Profile = () => {
             <Typography variant="body2" className="bio">
               {profileData.bio || "No bio yet"}
             </Typography>
+            {/* New Fields: Designation, Role, and LinkedIn URL */}
+  {profileData.designation && (
+    <Typography variant="body2" className="designation">
+      {profileData.designation}
+    </Typography>
+  )}
+
+  {profileData.role && (
+    <Typography variant="body2" className="role">
+      {profileData.role}
+    </Typography>
+  )}
+
+  {profileData.linkedinUrl && (
+    <Typography variant="body2" className="linkedin">
+       <a href={profileData.linkedinUrl} target="_blank" rel="noopener noreferrer">{profileData.linkedinUrl}</a>
+    </Typography>
+    )}
           </div>
         </div>
       </div>

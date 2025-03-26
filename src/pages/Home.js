@@ -15,9 +15,14 @@ import ExploreIcon from "@mui/icons-material/Explore";
 import StoryViewer from "../components/StoryViewer";
 import StoryUpload from "../components/StoryUpload";
 
+// Add these imports
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+// const navigate = useNavigate();
 import socket from '../services/socket';
 // Define API base URL
-const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 const Home = () => {
     // ... (your existing state)
@@ -41,6 +46,12 @@ const Home = () => {
 const [followers, setFollowers] = useState([]);
 const [selectedUsers, setSelectedUsers] = useState([]);
 const [currentPostToShare, setCurrentPostToShare] = useState(null);
+
+const [taggedUsers, setTaggedUsers] = useState([]);
+
+  const [selectedTaggedUsers, setSelectedTaggedUsers] = useState([]);
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [currentPostToTag, setCurrentPostToTag] = useState(null);
     // State for new post
     const [newPost, setNewPost] = useState({
         caption: "",
@@ -69,14 +80,26 @@ const [currentPostToShare, setCurrentPostToShare] = useState(null);
     const fetchPosts = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${API_BASE_URL}/posts`);
+            const response = await axios.get(`${API_BASE_URL}/posts`, {
+                params: {
+                    populate: 'taggedUsers' // Request population of tagged users
+                }
+            });
+    
             const updatedPosts = response.data.map(post => ({
                 ...post,
                 // Fix the image URL - make sure it's fully qualified
-                image: post.image ?
-                    (post.image.startsWith('http') ? post.image : `https://social-backend-1-qi8q.onrender.com${post.image}`)
-                    : null,
+                image: post.image ? `http://localhost:5000${post.image}` : null,
+                // Add tagged users processing
+                taggedUsers: post.taggedUsers
+                    ? post.taggedUsers.map(user => ({
+                        _id: user._id,
+                        username: user.username,
+                        profilePic: user.profilePic ? `http://localhost:5000${user.profilePic}` : null
+                    }))
+                    : []
             }));
+    
             setPosts(updatedPosts);
             setError(null);
         } catch (err) {
@@ -86,6 +109,7 @@ const [currentPostToShare, setCurrentPostToShare] = useState(null);
             setLoading(false);
         }
     };
+    
 
     const fetchStories = async () => {
         try {
@@ -175,7 +199,70 @@ const [currentPostToShare, setCurrentPostToShare] = useState(null);
         fetchStories(); // Refresh stories after upload
         setShowStoryUpload(false);
     };
+// Add this function inside the Home component
+const handleDeleteStory = async (storyId) => {
+    try {
+        // Retrieve the authentication token from localStorage
+        const token = localStorage.getItem('auth-token');
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        
+        // Comprehensive token and user validation
+        if (!token) {
+            alert('Authentication token is missing. Please log in again.');
+            return;
+        }
 
+        if (!storedUser || !storedUser._id) {
+            alert('User information is missing. Please log in again.');
+            return;
+        }
+
+        // Make API call to delete the story with proper headers
+        const response = await axios.delete(`${API_BASE_URL}/stories/${storyId}`, {
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'x-auth-token': token
+            },
+            data: { userId: storedUser._id } // Include user ID in request body
+        });
+
+        // Refresh stories after deletion
+        fetchStories();
+
+        // Show success message
+        alert('Story deleted successfully');
+    } catch (error) {
+        console.error('Error deleting story:', error);
+        
+        // Detailed error handling
+        if (error.response) {
+            // Server responded with an error status
+            switch (error.response.status) {
+                case 401:
+                    alert('Unauthorized. Please log in again.');
+                    // Optionally redirect to login or clear authentication
+                    localStorage.removeItem('auth-token');
+                    localStorage.removeItem('user');
+                    navigate('/login');
+                    break;
+                case 403:
+                    alert('You are not authorized to delete this story.');
+                    break;
+                case 404:
+                    alert('Story not found.');
+                    break;
+                default:
+                    alert(`Delete failed: ${error.response.data.error || 'Unknown server error'}`);
+            }
+        } else if (error.request) {
+            // Request was made but no response received
+            alert('No response from server. Please check your internet connection.');
+        } else {
+            // Something happened in setting up the request
+            alert('Error preparing the request. Please try again.');
+        }
+    }
+};
     const handleImageTypeChange = (type) => {
         setNewPost({ ...newPost, imageType: type });
     };
@@ -391,19 +478,43 @@ const handleLike = async (postId) => {
   
   const fetchFollowers = async () => {
     try {
-        const token = localStorage.getItem("auth-token"); // Get token from localStorage
+        const token = localStorage.getItem("auth-token");
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+
         if (!token) {
-            console.error("No auth token found, user may not be logged in.");
+            console.error("No auth token found");
+            alert("Please log in again");
+            navigate("/login"); // Redirect to login if no token
             return;
         }
 
-        const response = await axios.get(`${API_BASE_URL}/profile/${currentUser._id}/followers`, {
-            headers: { "x-auth-token": token } // Pass token in request headers
+        if (!storedUser || !storedUser._id) {
+            console.error("No user information found");
+            alert("User session expired. Please log in again.");
+            navigate("/login");
+            return;
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/profile/${storedUser._id}/followers`, {
+            headers: { 
+                "x-auth-token": token,
+                "Authorization": `Bearer ${token}`
+            }
         });
 
         setFollowers(response.data);
     } catch (error) {
         console.error("Error fetching followers:", error.response?.data || error.message);
+        
+        // More specific error handling
+        if (error.response && error.response.status === 401) {
+            alert("Session expired. Please log in again.");
+            localStorage.removeItem("auth-token");
+            localStorage.removeItem("user");
+            navigate("/login");
+        } else {
+            alert("Failed to fetch followers. Please try again.");
+        }
     }
 };
 
@@ -493,8 +604,87 @@ const confirmShare = async () => {
   const getProfilePicUrl = (profilePic) => {
     if (!profilePic) return "/default-avatar.png";
     if (profilePic.startsWith('http')) return profilePic;
-    return `https://social-backend-1-qi8q.onrender.com${profilePic}`;
+    return `http://localhost:5000${profilePic}`;
 };
+
+
+
+
+  // Add these new functions to your existing component
+  const handleDeletePost = async (postId) => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (!storedUser || !storedUser._id) {
+        alert("User session expired. Please log in again.");
+        return;
+      }
+
+      const response = await axios.delete(`${API_BASE_URL}/posts/${postId}`, {
+        data: { userId: storedUser._id }
+      });
+
+      alert("Post deleted successfully");
+      fetchPosts(); // Refresh posts after deletion
+    } catch (error) {
+      console.error("Delete post failed", error);
+      alert("Failed to delete post: " + (error.response?.data?.error || error.message));
+    }
+  };
+
+
+
+// Open tag modal function
+const openTagModal = (postId) => {
+    fetchFollowers();
+    setCurrentPostToTag(postId);
+    setShowTagModal(true);
+    setSelectedTaggedUsers([]); // Reset selected users
+};
+
+// Handle tagging users
+// Frontend
+const handleTagUsers = async () => {
+    try {
+      const taggedUsersDetails = [];
+      for (const taggedUserId of selectedTaggedUsers) {
+        const response = await axios.post(`${API_BASE_URL}/posts/${currentPostToTag}/tag`, {
+          userId: currentUser._id,
+          taggedUserId
+        });
+        
+        // Collect tagged user details
+        taggedUsersDetails.push(
+          response.data.taggedUsers.find(u => u._id === taggedUserId)
+        );
+      }
+  
+      // Update local state or trigger refetch
+      setTaggedUsers(taggedUsersDetails);
+      alert("Users tagged successfully");
+    } catch (error) {
+      console.error("Tagging error", error);
+      alert("Failed to tag users: " + error.message);
+    }
+  };
+
+  // Update useEffect for socket events
+  useEffect(() => {
+    // Existing socket listeners...
+    socket.on('postDeleted', (data) => {
+      setPosts(prevPosts => prevPosts.filter(post => post._id !== data.postId));
+    });
+
+    socket.on('newTag', (data) => {
+      fetchPosts(); // Refresh to get updated post with tags
+    });
+
+    // Clean up listeners in return
+    return () => {
+      // Other existing cleanup...
+      socket.off('postDeleted');
+      socket.off('newTag');
+    };
+  }, []);
 return (
   <div className="home-container">
       {/* Top Navbar */}
@@ -539,7 +729,7 @@ return (
                           <h3>Search Results</h3>
                           {searchResults.map((user) => (
                               <div key={user._id} className="search-result-item">
-                                  <Avatar src={`https://social-backend-1-qi8q.onrender.com${user.profilePic}`} />
+                                  <Avatar src={`http://localhost:5000${user.profilePic}`} />
                                   <p>{user.username}</p>
                                   {currentUser && currentUser._id !== user._id && (
                                       <Button
@@ -591,6 +781,7 @@ return (
                       <p>Add Story</p></div>
 
 {/* Story Items */}
+
 {stories.map((userStories, index) => {
     // Only display if there are stories and user info
     if (!userStories || !userStories.length || !userStories[0].user) return null;
@@ -604,9 +795,21 @@ return (
         >
             <div className="story-avatar-container has-story">
                 <Avatar
-                    src={story.user?.profilePic ? `https://social-backend-1-qi8q.onrender.com${story.user.profilePic}` : "/default-avatar.png"}
+                    src={story.user?.profilePic ? `http://localhost:5000${story.user.profilePic}` : "/default-avatar.png"}
                     className="story-avatar"
                 />
+                {/* Add delete button only for current user's stories */}
+                {story.user?._id === currentUser?._id && (
+                    <button 
+                        className="delete-story-btn" 
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent story view when clicking delete
+                            handleDeleteStory(story._id);
+                        }}
+                    >
+                        🗑️
+                    </button>
+                )}
             </div>
             <p>{story.user?.username || "User"}</p>
         </div>
@@ -616,62 +819,104 @@ return (
 
 {/* Posts Feed */}
 <div className="posts-container">
-{loading && <p className="loading">Loading posts...</p>}
-{!loading && posts.length === 0 && <p className="no-posts">No posts yet. Be the first to share!</p>}
+    {loading && <p className="loading">Loading posts...</p>}
+    {!loading && posts.length === 0 && <p className="no-posts">No posts yet. Be the first to share!</p>}
 
-{posts.map((post) => (
-    <div key={post._id} className="post">
-        <div className="post-header">
-            <Avatar
-                src={post.user?.profilePic ? `https://social-backend-1-qi8q.onrender.com${post.user.profilePic}` : "/default-avatar.png"}
-            />
-            <p>{post.user?.username || "Anonymous"}</p>
-        </div>
-
-        {/* Display title and description if it's a PDF file */}
-        {post.fileType === 'pdf' && post.title && (
-            <div className="post-paper-info">
-                <h3 className="post-title">{post.title}</h3>
-                {post.description && <p className="post-description">{post.description}</p>}
-            </div>
-        )}
-
-        {/* Display caption if present */}
-        {post.caption && (
-            <p className="post-caption">{post.caption}</p>
-        )}
-
-        {/* Display based on fileType */}
-        {post.fileType === 'pdf' ? (
-            <div className="pdf-container">
-                <div className="pdf-preview">
-                    <img src="/pdf.png" alt="PDF Document" className="pdf-icon" />
-                    <span className="pdf-filename">{post.title || "Research Paper"}</span>
-                </div>
-                <a 
-                    href={`${post.image}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="pdf-download-btn"
-                >
-                    View PDF
-                </a>
-            </div>
-        ) : (
-            post.image ? (
-                <img
-                    src={post.image}
-                    alt="Post"
-                    className="post-image"
-                    onError={(e) => {
-                        console.error(`Failed to load image: ${post.image}`);
-                        e.target.style.display = "none";
-                    }}
+    {posts.map((post) => (
+        <div key={post._id} className="post">
+            {/* Post Header */}
+            <div className="post-header">
+                <Avatar
+                    src={post.user?.profilePic ? `http://localhost:5000${post.user.profilePic}` : "/default-avatar.png"}
                 />
-            ) : (
-                <p>No Image Available</p>
-            )
-        )}
+                <p className="post-username">{post.user?.username || "Anonymous"}</p>
+                {/* Delete Post Button (only for post owner) */}
+                {post.user?._id === currentUser?._id && (
+                    <DeleteIcon 
+                        onClick={() => handleDeletePost(post._id)} 
+                        className="delete-post-icon" 
+                    />
+                )}
+            </div>
+
+            {/* Display title and description for PDFs */}
+            {post.fileType === 'pdf' && post.title && (
+                <div className="post-paper-info">
+                    <h3 className="post-title">{post.title}</h3>
+                    {post.description && <p className="post-description">{post.description}</p>}
+                </div>
+            )}
+
+            {/* Display Caption */}
+            {post.caption && <p className="post-caption">{post.caption}</p>}
+
+            {/* Post Media */}
+            <div className="post-media">
+                {post.fileType === 'pdf' ? (
+                    <div className="pdf-container">
+                        <div className="pdf-preview">
+                            <img src="/pdf.png" alt="PDF Document" className="pdf-icon" />
+                            <span className="pdf-filename">{post.title || "Research Paper"}</span>
+                        </div>
+                        <a 
+                            href={`${post.image}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="pdf-download-btn"
+                        >
+                            View PDF
+                        </a>
+                    </div>
+                ) : (
+                    post.image ? (
+                        <img
+                            src={post.image}
+                            alt="Post"
+                            className="post-image"
+                            onError={(e) => {
+                                console.error(`Failed to load image: ${post.image}`);
+                                e.target.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <p className="no-image">No Image Available</p>
+                    )
+                )}
+            </div>
+
+            {/* Tagged Users Section */}
+            {post.taggedUsers && post.taggedUsers.length > 0 && (
+                <div className="tagged-users-section">
+                    <span className="tagged-label">Tagged:</span>
+                    <div className="tagged-users">
+                        {post.taggedUsers.map(user => (
+                            <div key={user._id} className="tagged-user">
+                                {user.profilePic && (
+                                    <img 
+                                        src={`http://localhost:5000${user.profilePic}`} 
+                                        alt={user.username} 
+                                        className="tagged-user-profile-pic"
+                                    />
+                                )}
+                                <span className="tagged-username">
+                                    @{user.username}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Tag Users Button (Only for post owner) */}
+            {post.user?._id === currentUser?._id && (
+                <button 
+                    onClick={() => openTagModal(post._id)} 
+                    className="tag-button"
+                >
+                    <PersonAddIcon /> Tag Users
+                </button>
+            )}
+  
 
         <div className="post-stats">
             <span>{post.likes?.length || 0} likes</span>
@@ -701,7 +946,7 @@ return (
         {/* Comment input */}
         <div className="comment-input">
             <Avatar
-                src={currentUser?.profilePic ? `https://social-backend-1-qi8q.onrender.com${currentUser.profilePic}` : "/default-avatar.png"}
+                src={currentUser?.profilePic ? `http://localhost:5000${currentUser.profilePic}` : "/default-avatar.png"}
                 className="comment-avatar"
             />
             <input
@@ -720,7 +965,7 @@ return (
                 post.comments.map((comment, index) => (
                     <div key={index} className="comment">
                         <Avatar
-                            src={comment.user?.profilePic ? `https://social-backend-1-qi8q.onrender.com${comment.user.profilePic}` : "/default-avatar.png"}
+                            src={comment.user?.profilePic ? `http://localhost:5000${comment.user.profilePic}` : "/default-avatar.png"}
                             className="comment-avatar"
                         />
                         <div className="comment-content">
@@ -738,7 +983,35 @@ return (
 </div>
 </div>
 </div>
-
+// In your render method, add this modal
+{showTagModal && (
+    <div className="modal-overlay">
+        <div className="modal">
+            <h3>Tag Followers</h3>
+            <ul>
+                {followers.map(follower => (
+                    <li key={follower._id}>
+                        <input 
+                            type="checkbox" 
+                            value={follower._id} 
+                            onChange={(e) => {
+                                const checked = e.target.checked;
+                                setSelectedTaggedUsers(prev =>
+                                    checked 
+                                        ? [...prev, follower._id] 
+                                        : prev.filter(id => id !== follower._id)
+                                );
+                            }}
+                        />
+                        {follower.username}
+                    </li>
+                ))}
+            </ul>
+            <button onClick={handleTagUsers}>Confirm Tags</button>
+            <button onClick={() => setShowTagModal(false)}>Cancel</button>
+        </div>
+    </div>
+)}
 {/* Post Upload Modal */}
 {showUpload && (
 <div className="modal-overlay">
@@ -799,9 +1072,11 @@ return (
         Cancel
     </button>
 </div>
+
 </div>
 </div>
 )}
+
 {/* Share Modal */}
 {showShareModal && (
     <div className="modal-overlay">

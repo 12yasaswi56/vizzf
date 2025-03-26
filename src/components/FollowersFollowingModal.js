@@ -16,7 +16,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
-const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 const FollowersFollowingModal = ({ 
   open, 
@@ -138,7 +138,7 @@ const FollowersFollowingModal = ({
               >
                 <ListItemAvatar onClick={() => handleUserClick(user._id)}>
                   <Avatar 
-                    src={user.profilePic ? `https://social-backend-1-qi8q.onrender.com${user.profilePic}` : ''} 
+                    src={user.profilePic ? `https://localhost:5000${user.profilePic}` : ''} 
                     alt={user.username}
                   />
                 </ListItemAvatar>

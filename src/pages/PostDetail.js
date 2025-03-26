@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Typography, Card, CardMedia, Button, CircularProgress, Box } from '@mui/material';
 
-const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 const PostDetail = () => {
   const { postId } = useParams();
@@ -32,7 +32,7 @@ const PostDetail = () => {
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
       <Card sx={{ maxWidth: 500 }}>
-        <CardMedia component="img" height="300" image={`https://social-backend-1-qi8q.onrender.com${post.image}`} alt="Post" />
+        <CardMedia component="img" height="300" image={`http://localhost:5000${post.image}`} alt="Post" />
         <Typography variant="h6" sx={{ padding: 2 }}>{post.caption}</Typography>
         <Typography variant="body2" sx={{ padding: 2 }}>Likes: {post.likes.length}</Typography>
 
