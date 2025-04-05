@@ -4,10 +4,12 @@
 // import SendIcon from "@mui/icons-material/Send";
 // import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 // import SearchIcon from "@mui/icons-material/Search";
+// import AttachFileIcon from "@mui/icons-material/AttachFile";
+// import DescriptionIcon from "@mui/icons-material/Description";
 // import socket from '../services/socket';
 // import "../pagesCss/chat.css";
 
-// const API_BASE_URL = "https://social-backend-1-qi8q.onrender.com/api";
+// const API_BASE_URL = "http://localhost:5000/api";
 
 // const Chat = () => {
 //   const [conversations, setConversations] = useState([]);
@@ -19,6 +21,17 @@
 //   const [loading, setLoading] = useState(false);
 //   const [currentUser, setCurrentUser] = useState(null);
 //   const messagesEndRef = useRef(null);
+//   const [mediaFiles, setMediaFiles] = useState([]);
+//   const [previewFiles, setPreviewFiles] = useState([]);
+//   const fileInputRef = useRef(null);
+
+
+//   const [confirmDelete, setConfirmDelete] = useState({
+//     open: false,
+//     messageId: null,
+//     isUnsend: false
+//   });
+
 
 //   // Get current user from localStorage when component mounts
 //   useEffect(() => {
@@ -41,8 +54,28 @@
 //     // Listen for new messages
 //     socket.on('newMessage', handleNewMessage);
     
+//     // Listen for deleted messages
+//     socket.on('messageDeleted', ({ messageId, conversationId, newLatestMessage }) => {
+//       // Update messages list
+//       setMessages(prev => prev.filter(msg => msg._id !== messageId));
+      
+//       // Update conversations list if needed
+//       setConversations(prev => 
+//         prev.map(conv => {
+//           if (conv._id === conversationId) {
+//             return {
+//               ...conv,
+//               latestMessage: newLatestMessage || conv.latestMessage
+//             };
+//           }
+//           return conv;
+//         })
+//       );
+//     });
+    
 //     return () => {
 //       socket.off('newMessage', handleNewMessage);
+//       socket.off('messageDeleted');
 //       socket.disconnect();
 //     };
 //   }, [currentUser]);
@@ -66,6 +99,17 @@
 //     };
 //   }, [activeConversation]);
 
+//   // Debug message sender data when messages are loaded
+//   useEffect(() => {
+//     if (messages.length > 0) {
+//       console.log('Message sender data:', messages.map(m => ({
+//         id: m._id,
+//         sender: m.senderId.username,
+//         profilePic: m.senderId.profilePic
+//       })));
+//     }
+//   }, [messages]);
+
 //   const fetchConversations = async () => {
 //     try {
 //       setLoading(true);
@@ -85,6 +129,14 @@
 //       setLoading(true);
 //       const response = await axios.get(`${API_BASE_URL}/messages/${conversationId}`);
 //       setMessages(response.data);
+//       console.log("Messages with image data:", response.data.filter(m => m.postReference?.imageUrl).map(m => ({
+//         id: m._id,
+//         content: m.content,
+//         imageUrl: m.postReference?.imageUrl,
+//         fullPath: m.postReference?.imageUrl.startsWith('http') 
+//           ? m.postReference.imageUrl 
+//           : `${API_BASE_URL.replace('/api', '')}${m.postReference.imageUrl}`
+//       })));
 //     } catch (err) {
 //       console.error("Error fetching messages:", err);
 //     } finally {
@@ -108,65 +160,178 @@
 //     );
 //   };
 
-//   const sendMessage = async () => {
-//     if (!newMessage.trim() || !activeConversation) return;
+//   const deleteMessage = async (messageId) => {
+//     if (!messageId || !activeConversation?._id || !currentUser?._id) return;
     
 //     try {
-//       // Create a temporary message to display immediately
-//       const tempMessage = {
-//         _id: `temp-${Date.now()}`, // temporary ID
+//       await axios.delete(`${API_BASE_URL}/messages/${messageId}`, {
+//         data: { userId: currentUser._id }
+//       });
+      
+//       // The socket event will handle the UI update
+//     } catch (err) {
+//       console.error('Error deleting message:', err);
+//       alert('Failed to delete message. Please try again.');
+//     }
+//   };
+
+//   const unsendMessage = async (messageId) => {
+//     if (!messageId || !activeConversation?._id || !currentUser?._id) return;
+    
+//     try {
+//       await axios.delete(`${API_BASE_URL}/messages/unsend/${messageId}`, {
+//         data: { userId: currentUser._id }
+//       });
+      
+//       // The socket event will handle the UI update
+//     } catch (err) {
+//       console.error('Error unsending message:', err);
+//       alert(err.response?.data?.error || 'Failed to unsend message. Please try again.');
+//     }
+//   };
+
+//   const handleFileChange = (e) => {
+//     const files = Array.from(e.target.files);
+    
+//     // Check file types before setting state
+//     const allowedTypes = [
+//       'image/jpeg',
+//       'image/png',
+//       'image/gif',
+//       'image/webp',
+//       'video/mp4',
+//       'video/quicktime',
+//       'video/webm',
+//       'application/pdf'
+//     ];
+    
+//     const invalidFiles = files.filter(file => !allowedTypes.includes(file.type));
+    
+//     if (invalidFiles.length > 0) {
+//       alert(`These file types are not supported: ${invalidFiles.map(f => f.type).join(', ')}`);
+//       return;
+//     }
+    
+//     setMediaFiles(files);
+    
+//     // Create previews
+//     const previews = files.map(file => ({
+//       file,
+//       preview: URL.createObjectURL(file),
+//       type: file.type.split('/')[0] === 'image' ? 'image' : 
+//             file.type.split('/')[0] === 'video' ? 'video' : 'document'
+//     }));
+    
+//     setPreviewFiles(previews);
+//   };
+
+//   const removePreview = (index) => {
+//     const newPreviews = [...previewFiles];
+//     URL.revokeObjectURL(newPreviews[index].preview);
+//     newPreviews.splice(index, 1);
+//     setPreviewFiles(newPreviews);
+    
+//     const newFiles = [...mediaFiles];
+//     newFiles.splice(index, 1);
+//     setMediaFiles(newFiles);
+//   };
+
+//   const uploadFiles = async () => {
+//     if (mediaFiles.length === 0) return [];
+    
+//     try {
+//       const formData = new FormData();
+//       mediaFiles.forEach(file => {
+//         formData.append('files', file);
+//       });
+      
+//       const response = await axios.post(`${API_BASE_URL}/uploads`, formData, {
+//         headers: {
+//           'Content-Type': 'multipart/form-data'
+//         },
+//         withCredentials: true
+//       });
+      
+//       return response.data.files;
+//     } catch (err) {
+//       console.error('Error uploading files:', err);
+//       if (err.response?.data?.error?.includes('Invalid file type')) {
+//         alert('The file type you tried to upload is not supported. Please use images (JPEG, PNG, GIF), videos (MP4, MOV), or PDFs.');
+//       } else {
+//         alert('Failed to upload files. Please try again.');
+//       }
+//       return [];
+//     }
+//   };
+
+//   const sendMessage = async () => {
+//     if (!newMessage.trim() && mediaFiles.length === 0 && !activeConversation) return;
+    
+//     try {
+//       // Upload files first if there are any
+//       let uploadedMedia = [];
+//       if (mediaFiles.length > 0) {
+//         uploadedMedia = await uploadFiles();
+//         console.log('Uploaded media:', uploadedMedia);
+//       }
+
+//       // Create the message payload
+//       const messageData = {
 //         conversationId: activeConversation._id,
+//         senderId: currentUser._id,
+//         content: newMessage,
+//         media: uploadedMedia
+//       };
+
+//       console.log('Sending message data:', messageData);
+
+//       // Create temp message for UI
+//       const tempMessage = {
+//         _id: `temp-${Date.now()}`,
+//         ...messageData,
 //         senderId: {
 //           _id: currentUser._id,
 //           username: currentUser.username,
 //           profilePic: currentUser.profilePic
 //         },
-//         content: newMessage,
 //         createdAt: new Date(),
-//         isTemp: true // flag to identify temp messages
+//         isTemp: true
 //       };
-      
-//       // Add message to UI immediately
-//       setMessages(prevMessages => [...prevMessages, tempMessage]);
-      
-//       // Update conversations list with latest message
-//       setConversations(prevConversations => 
-//         prevConversations.map(conv => 
+
+//       // Update UI
+//       setMessages(prev => [...prev, tempMessage]);
+//       setConversations(prev => 
+//         prev.map(conv => 
 //           conv._id === activeConversation._id 
 //             ? { ...conv, latestMessage: tempMessage }
 //             : conv
 //         )
 //       );
       
-//       // Clear input
-//       const messageCopy = newMessage;
+//       // Clear inputs
 //       setNewMessage("");
-      
-//       // Actually send the message to server
-//       const response = await axios.post(`${API_BASE_URL}/messages`, {
-//         conversationId: activeConversation._id,
-//         senderId: currentUser._id,
-//         content: messageCopy
-//       });
-      
-//       // If needed, replace the temp message with the real one from server
-//       // This step might not be necessary if you solely rely on socket updates
-//       setMessages(prevMessages => 
-//         prevMessages.map(msg => 
+//       setMediaFiles([]);
+//       setPreviewFiles([]);
+
+//       // Send to server
+//       const response = await axios.post(`${API_BASE_URL}/messages`, messageData);
+
+//       // Replace temp message with server response
+//       setMessages(prev => 
+//         prev.map(msg => 
 //           msg.isTemp && msg._id === tempMessage._id 
 //             ? response.data 
 //             : msg
 //         )
 //       );
       
-//       // Scroll to bottom again to ensure visibility
 //       scrollToBottom();
 //     } catch (err) {
-//       console.error("Error sending message:", err);
-//       // If error, you might want to show an error and remove the temp message
-//       setMessages(prevMessages => 
-//         prevMessages.filter(msg => msg._id !== `temp-${Date.now()}`)
+//       console.error("Error sending message:", err.response?.data || err.message);
+//       setMessages(prev => 
+//         prev.filter(msg => msg._id !== `temp-${Date.now()}`)
 //       );
+//       alert('Failed to send message. Please try again.');
 //     }
 //   };
 
@@ -214,21 +379,18 @@
 
 //   const getConversationImage = (conversation) => {
 //     if (!conversation?.participants || !currentUser) return "/default-avatar.png";
-  
+    
 //     const otherParticipant = conversation.participants.find(
-//       (p) => p._id !== currentUser._id
+//       p => p._id !== currentUser._id
 //     );
-  
-//     if (otherParticipant && otherParticipant.profilePic) {
-//       return otherParticipant.profilePic;
-//     } else {
-//         const otherUserId = conversation.participants.find(id => id !== currentUser._id);
-//         if(typeof otherUserId === 'string'){
-//             const user = users.find(user => user._id === otherUserId);
-//             return user?.profilePic || "/default-avatar.png"
-//         }
-//         return "/default-avatar.png";
-//     }
+    
+//     const imageUrl = otherParticipant?.profilePic 
+//       ? `${API_BASE_URL.replace('/api', '')}${otherParticipant.profilePic}` 
+//       : "/default-avatar.png";
+    
+//     console.log('Corrected Image URL:', imageUrl);
+    
+//     return imageUrl;
 //   };
 
 //   const formatTime = (timestamp) => {
@@ -236,27 +398,104 @@
 //     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 //   };
 
-//   // Function to check if message is from current user
 //   const isCurrentUserMessage = (message) => {
 //     return message.senderId._id === currentUser?._id;
 //   };
 
-//   // Function to check if we should show the sender avatar
-//   // Only show avatar for received messages
 //   const shouldShowAvatar = (message, index) => {
-//     // If it's a sent message, don't show avatar
 //     if (isCurrentUserMessage(message)) return false;
-
-//     // For received messages, check if it's the first message or from a different sender than previous
 //     if (index === 0) return true;
 //     const prevMessage = messages[index - 1];
-    
-//     // Show avatar if sender changed
 //     return prevMessage.senderId._id !== message.senderId._id;
 //   };
 
+//   const renderMessageMedia = (media) => {
+//     return media.map((item, index) => {
+//       const mediaUrl = item.url.startsWith('http') 
+//       ? item.url 
+//       : `${API_BASE_URL.replace('/api', '')}${item.url}`;
+//       switch(item.type) {
+//         case 'image':
+//           return (
+//             <div key={index} className="media-container">
+//               <img 
+//                 src={mediaUrl}
+//                 alt="Shared media"
+//                 className="message-media"
+//                 onError={(e) => {
+//                   console.error(`Failed to load image: ${mediaUrl}`);
+//                   e.target.src = "/default-image.png";
+//                 }}
+//               />
+//             </div>
+//           );
+//         case 'video':
+//           return (
+//             <div key={index} className="media-container">
+//               <video controls className="message-media">
+//                 <source 
+//                   src={item.url.startsWith('http') ? item.url : `${API_BASE_URL}${item.url}`}
+//                   type="video/mp4"
+//                 />
+//                 Your browser does not support the video tag.
+//               </video>
+//             </div>
+//           );
+//         case 'document':
+//           return (
+//             <div key={index} className="document-container">
+//               <a 
+//                 href={item.url.startsWith('http') ? item.url : `${API_BASE_URL}${item.url}`}
+//                 target="_blank"
+//                 rel="noopener noreferrer"
+//               >
+//                 <div className="document-icon">
+//                   <DescriptionIcon />
+//                 </div>
+//                 <span>{item.filename || 'Document'}</span>
+//               </a>
+//             </div>
+//           );
+//         default:
+//           return null;
+//       }
+//     });
+//   };
+
+// const ConfirmationDialog = () => (
+//   <div className={`confirmation-dialog ${confirmDelete.open ? 'open' : ''}`}>
+//     <div className="confirmation-content">
+//       <p>{confirmDelete.isUnsend 
+//         ? "Are you sure you want to unsend this message?" 
+//         : "Are you sure you want to delete this message?"}</p>
+//       <div className="confirmation-buttons">
+//         <button 
+//           className="cancel-btn"
+//           onClick={() => setConfirmDelete({ open: false, messageId: null })}
+//         >
+//           Cancel
+//         </button>
+//         <button 
+//           className="confirm-btn"
+//           onClick={() => {
+//             if (confirmDelete.isUnsend) {
+//               unsendMessage(confirmDelete.messageId);
+//             } else {
+//               deleteMessage(confirmDelete.messageId);
+//             }
+//             setConfirmDelete({ open: false, messageId: null });
+//           }}
+//         >
+//           Confirm
+//         </button>
+//       </div>
+//     </div>
+//   </div>
+// );
+  
 //   return (
 //     <div className="chat-container">
+//       {activeConversation && <ConfirmationDialog />}
 //       {/* Left Panel - Conversations List */}
 //       <div className="conversations-panel">
 //         <div className="search-container">
@@ -284,7 +523,12 @@
 //                 className="user-item"
 //                 onClick={() => startNewConversation(user._id)}
 //               >
-//                 <Avatar src={user.profilePic || "/default-avatar.png"} />
+//                 <Avatar 
+//                   src={user.profilePic 
+//                     ? `${API_BASE_URL.replace('/api', '')}${user.profilePic}` 
+//                     : "/default-avatar.png"
+//                   } 
+//                 />
 //                 <div className="user-info">
 //                   <p className="username">{user.username}</p>
 //                 </div>
@@ -340,72 +584,165 @@
 //               <h3>{getConversationName(activeConversation)}</h3>
 //             </div>
 
-            
-
-// <div className="messages-container">
-//   {loading ? (
-//     <p className="loading">Loading messages...</p>
-//   ) : (
-//     <>
-//       {messages.length === 0 ? (
-//         <p className="no-messages">No messages yet. Say hello!</p>
-//       ) : (
-//         messages.map((message, index) => {
-//           const isSender = isCurrentUserMessage(message);
-//           const showAvatar = shouldShowAvatar(message, index);
-//           const hasPostReference = message.postReference && message.postReference.postId;
-//           console.log('Rendering message:', message._id, 'hasPostRef:', !!message.postReference?.postId);
-//   if (message.postReference) {
-//     console.log('PostRef details:', JSON.stringify(message.postReference));
-//   }
-  
-//           return (
-//             <div key={message._id || index} className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}>
-//               {!isSender && showAvatar && (
-//               <Avatar 
-//               src={message.senderId.profilePic ? `${API_BASE_URL}${message.senderId.profilePic}` : "/default-avatar.png"} 
-//               className="message-avatar"
-//               sx={{ width: 28, height: 28 }}
-//             />
+//             <div className="messages-container">
+//               {loading ? (
+//                 <p className="loading">Loading messages...</p>
+//               ) : (
+//                 <>
+//                   {messages.length === 0 ? (
+//                     <p className="no-messages">No messages yet. Say hello!</p>
+//                   ) : (
+//                     messages.map((message, index) => {
+//                       const isSender = isCurrentUserMessage(message);
+//                       const showAvatar = shouldShowAvatar(message, index);
+//                       const hasPostReference = message.postReference && message.postReference.postId;
+//                       const hasMedia = message.media && message.media.length > 0;
+                      
+//                       return (
+//                         <div key={message._id || index} className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}>
+//                           {!isSender && showAvatar && (
+//                             <Avatar
+//                               src={message.senderId?.profilePic 
+//                                 ? `${API_BASE_URL.replace('/api', '')}${message.senderId.profilePic}` 
+//                                 : "/default-avatar.png"}
+//                               className="message-avatar"
+//                               sx={{ width: 28, height: 28 }}
+//                               onError={(e) => {
+//                                 console.error('Avatar load error:', e);
+//                                 e.target.src = "/default-avatar.png";
+//                               }}
+//                             />
+//                           )}
+//                           {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
+//                           <div className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}>
+//                           {isSender && (
+//   <div className="message-actions">
+//     <button 
+//       className="message-action-btn"
+//       onClick={(e) => {
+//         e.stopPropagation();
+//         setConfirmDelete({
+//           open: true,
+//           messageId: message._id,
+//           isUnsend: false
+//         });
+//       }}
+//     >
+//       Delete
+//     </button>
+//     {Date.now() - new Date(message.createdAt).getTime() < 5 * 60 * 1000 && (
+//       <button 
+//         className="message-action-btn"
+//         onClick={(e) => {
+//           e.stopPropagation();
+//           setConfirmDelete({
+//             open: true,
+//             messageId: message._id,
+//             isUnsend: true
+//           });
+//         }}
+//       >
+//         Unsend
+//       </button>
+//     )}
+//   </div>
+// )}
+//                             <p>{message.content}</p>
+                            
+//                             {hasMedia && (
+//                               <div className="message-media-container">
+//                                 {renderMessageMedia(message.media)}
+//                               </div>
+//                             )}
+                            
+//                             {hasPostReference && (
+//                               <div 
+//                                 className="shared-post-preview" 
+//                                 onClick={() => window.location.href = `/post/${message.postReference.postId}`}
+//                               >
+//                                 {message.postReference.imageUrl && (
+//                                   <img
+//                                     src={message.postReference.imageUrl.startsWith('http') 
+//                                       ? message.postReference.imageUrl 
+//                                       : `${API_BASE_URL.replace('/api', '')}${message.postReference.imageUrl}`}
+//                                     alt="Shared post"
+//                                     className="shared-post-image"
+//                                     onError={(e) => {
+//                                       console.error(`Failed to load image: ${message.postReference.imageUrl}`);
+//                                       e.target.src = "/default-post.png";
+//                                     }}
+//                                   />
+//                                 )}
+//                                 <div className="shared-post-info">
+//                                   <p className="shared-post-caption">
+//                                     {message.postReference.caption || "No caption"}
+//                                   </p>
+//                                   <p className="shared-post-hint">Click to view post</p>
+//                                 </div>
+//                               </div>
+//                             )}
+                            
+//                             <span className="message-time">{formatTime(message.createdAt)}</span>
+//                           </div>
+//                         </div>
+//                       );
+//                     })
+//                   )}
+//                   <div ref={messagesEndRef} />
+//                 </>
 //               )}
-//               {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
-//               <div className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}>
-//                 <p>{message.content}</p>
-                
-//                 {/* Display shared post if exists */}
-// {/* Display shared post if exists */}
-// {hasPostReference && message.postReference.imageUrl && (
-//           <div className="shared-post-preview" onClick={() => window.location.href = `/post/${message.postReference.postId}`}>
-//             <img
-//               src={message.postReference.imageUrl}
-//               alt="Shared post"
-//               className="shared-post-image"
-//               onError={(e) => {
-//                 console.error(`Failed to load image: ${message.postReference.imageUrl}`);
-//                 e.target.style.display = "none";
-//               }}
-//             />
-//             <div className="shared-post-info">
-//               <p className="shared-post-caption">
-//                 {message.postReference.caption || "No caption"}
-//               </p>
-//               <p className="shared-post-hint">Click to view post</p>
 //             </div>
-//           </div>
-//         )}
-                
-//                 <span className="message-time">{formatTime(message.createdAt)}</span>
+
+//             {/* Preview area */}
+//             {previewFiles.length > 0 && (
+//               <div className="media-preview-container">
+//                 {previewFiles.map((file, index) => (
+//                   <div key={index} className="media-preview-item">
+//                     {file.type === 'image' ? (
+//                       <img 
+//                         src={file.preview} 
+//                         alt="Preview" 
+//                         className="preview-image"
+//                       />
+//                     ) : file.type === 'video' ? (
+//                       <video 
+//                         src={file.preview} 
+//                         className="preview-video"
+//                         controls
+//                       />
+//                     ) : (
+//                       <div className="preview-document">
+//                         <DescriptionIcon />
+//                         <span>{file.file.name}</span>
+//                       </div>
+//                     )}
+//                     <button 
+//                       className="remove-preview"
+//                       onClick={() => removePreview(index)}
+//                     >
+//                       ×
+//                     </button>
+//                   </div>
+//                 ))}
 //               </div>
-//             </div>
-//           );
-//         })
-//       )}
-//       <div ref={messagesEndRef} />
-//     </>
-//   )}
-// </div>
+//             )}
 
 //             <div className="message-input-container">
+//               <button 
+//                 className="attach-button"
+//                 onClick={() => fileInputRef.current.click()}
+//               >
+//                 <AttachFileIcon />
+//                 <input
+//                   type="file"
+//                   ref={fileInputRef}
+//                   onChange={handleFileChange}
+//                   multiple
+//                   accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.webm,.pdf"
+//                   style={{ display: 'none' }}
+//                 />
+//               </button>
+              
 //               <input
 //                 type="text"
 //                 placeholder="Type a message..."
@@ -414,10 +751,11 @@
 //                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
 //                 className="message-input"
 //               />
+              
 //               <button 
 //                 onClick={sendMessage} 
 //                 className="send-button"
-//                 disabled={!newMessage.trim()}
+//                 disabled={!newMessage.trim() && mediaFiles.length === 0}
 //               >
 //                 <SendIcon />
 //               </button>
@@ -438,13 +776,15 @@
 
 
 
-
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Avatar } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SearchIcon from "@mui/icons-material/Search";
+import MicIcon from "@mui/icons-material/Mic";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import DescriptionIcon from "@mui/icons-material/Description";
 import socket from '../services/socket';
 import "../pagesCss/chat.css";
 
@@ -460,7 +800,27 @@ const Chat = () => {
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const messagesEndRef = useRef(null);
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [previewFiles, setPreviewFiles] = useState([]);
+  const fileInputRef = useRef(null);
 
+
+
+  const [confirmDelete, setConfirmDelete] = useState({
+    open: false,
+    messageId: null,
+    isUnsend: false
+  });
+
+
+
+  // Add these state variables
+const [isRecording, setIsRecording] = useState(false);
+const [mediaRecorder, setMediaRecorder] = useState(null);
+const [audioChunks, setAudioChunks] = useState([]);
+const [audioUrl, setAudioUrl] = useState(null);
+const [recordingTime, setRecordingTime] = useState(0);
+const timerRef = useRef(null);
   // Get current user from localStorage when component mounts
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -482,8 +842,28 @@ const Chat = () => {
     // Listen for new messages
     socket.on('newMessage', handleNewMessage);
     
+    // Listen for deleted messages
+    socket.on('messageDeleted', ({ messageId, conversationId, newLatestMessage }) => {
+      // Update messages list
+      setMessages(prev => prev.filter(msg => msg._id !== messageId));
+      
+      // Update conversations list if needed
+      setConversations(prev => 
+        prev.map(conv => {
+          if (conv._id === conversationId) {
+            return {
+              ...conv,
+              latestMessage: newLatestMessage || conv.latestMessage
+            };
+          }
+          return conv;
+        })
+      );
+    });
+    
     return () => {
       socket.off('newMessage', handleNewMessage);
+      socket.off('messageDeleted');
       socket.disconnect();
     };
   }, [currentUser]);
@@ -537,6 +917,14 @@ const Chat = () => {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/messages/${conversationId}`);
       setMessages(response.data);
+      console.log("Messages with image data:", response.data.filter(m => m.postReference?.imageUrl).map(m => ({
+        id: m._id,
+        content: m.content,
+        imageUrl: m.postReference?.imageUrl,
+        fullPath: m.postReference?.imageUrl.startsWith('http') 
+          ? m.postReference.imageUrl 
+          : `${API_BASE_URL.replace('/api', '')}${m.postReference.imageUrl}`
+      })));
     } catch (err) {
       console.error("Error fetching messages:", err);
     } finally {
@@ -560,65 +948,206 @@ const Chat = () => {
     );
   };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !activeConversation) return;
+  const deleteMessage = async (messageId) => {
+    if (!messageId || !activeConversation?._id || !currentUser?._id) return;
     
     try {
-      // Create a temporary message to display immediately
-      const tempMessage = {
-        _id: `temp-${Date.now()}`, // temporary ID
+      await axios.delete(`${API_BASE_URL}/messages/${messageId}`, {
+        data: { userId: currentUser._id }
+      });
+      
+      // The socket event will handle the UI update
+    } catch (err) {
+      console.error('Error deleting message:', err);
+      alert('Failed to delete message. Please try again.');
+    }
+  };
+
+  const unsendMessage = async (messageId) => {
+    if (!messageId || !activeConversation?._id || !currentUser?._id) return;
+    
+    try {
+      await axios.delete(`${API_BASE_URL}/messages/unsend/${messageId}`, {
+        data: { userId: currentUser._id }
+      });
+      
+      // The socket event will handle the UI update
+    } catch (err) {
+      console.error('Error unsending message:', err);
+      alert(err.response?.data?.error || 'Failed to unsend message. Please try again.');
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Check file types before setting state
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'video/mp4',
+      'video/quicktime',
+      'video/webm',
+      'audio/mpeg',   // MP3
+  'audio/wav',    // WAV
+  'audio/ogg',    // OGG
+  'audio/webm',   // WebM audio
+      'application/pdf'
+    ];
+    
+    const invalidFiles = files.filter(file => !allowedTypes.includes(file.type));
+    
+    if (invalidFiles.length > 0) {
+      alert(`These file types are not supported: ${invalidFiles.map(f => f.type).join(', ')}`);
+      return;
+    }
+    
+    setMediaFiles(files);
+    
+    // Create previews
+  //   const previews = files.map(file => ({
+  //     file,
+  //     preview: URL.createObjectURL(file),
+  //     type: file.type.split('/')[0] === 'image' ? 'image' : 
+  //           file.type.split('/')[0] === 'video' ? 'video' : 'document'
+  //   }));
+    
+  //   setPreviewFiles(previews);
+  // };
+   // Create previews with better type detection
+   const previews = files.map(file => {
+    const fileType = file.type.split('/')[0];
+    let type;
+    
+    if (fileType === 'image') type = 'image';
+    else if (fileType === 'video') type = 'video';
+    else if (fileType === 'audio') type = 'audio';
+    else type = 'document'; // This will catch PDFs and other documents
+    
+    return {
+      file,
+      preview: URL.createObjectURL(file),
+      type,
+      filename: file.name
+    };
+  });
+  
+  setPreviewFiles(previews);
+};
+
+  const removePreview = (index) => {
+    const newPreviews = [...previewFiles];
+    URL.revokeObjectURL(newPreviews[index].preview);
+    newPreviews.splice(index, 1);
+    setPreviewFiles(newPreviews);
+    
+    const newFiles = [...mediaFiles];
+    newFiles.splice(index, 1);
+    setMediaFiles(newFiles);
+  };
+
+  const uploadFiles = async () => {
+    if (mediaFiles.length === 0) return [];
+    
+    try {
+      const formData = new FormData();
+      mediaFiles.forEach(file => {
+        formData.append('files', file);
+      });
+      
+      const response = await axios.post(`${API_BASE_URL}/uploads`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        withCredentials: true
+      });
+      
+      return response.data.files;
+    } catch (err) {
+      console.error('Error uploading files:', err);
+      if (err.response?.data?.error?.includes('Invalid file type')) {
+        alert('The file type you tried to upload is not supported. Please use images (JPEG, PNG, GIF), videos (MP4, MOV), or PDFs.');
+      } else {
+        alert('Failed to upload files. Please try again.');
+      }
+      return [];
+    }
+  };
+
+  const sendMessage = async () => {
+    // if (!newMessage.trim() && mediaFiles.length === 0 && !activeConversation) return;
+     // Should be:
+  if (!newMessage.trim() && mediaFiles.length === 0) {
+    alert('Please enter a message or attach a file');
+    return;
+  }
+    try {
+      // Upload files first if there are any
+      let uploadedMedia = [];
+      if (mediaFiles.length > 0) {
+        uploadedMedia = await uploadFiles();
+        console.log('Uploaded media:', uploadedMedia);
+      }
+
+      // Create the message payload
+      const messageData = {
         conversationId: activeConversation._id,
+        senderId: currentUser._id,
+        content: newMessage,
+        media: uploadedMedia
+      };
+
+      console.log('Sending message data:', messageData);
+
+      // Create temp message for UI
+      const tempMessage = {
+        _id: `temp-${Date.now()}`,
+        ...messageData,
         senderId: {
           _id: currentUser._id,
           username: currentUser.username,
           profilePic: currentUser.profilePic
         },
-        content: newMessage,
         createdAt: new Date(),
-        isTemp: true // flag to identify temp messages
+        isTemp: true
       };
-      
-      // Add message to UI immediately
-      setMessages(prevMessages => [...prevMessages, tempMessage]);
-      
-      // Update conversations list with latest message
-      setConversations(prevConversations => 
-        prevConversations.map(conv => 
+
+      // Update UI
+      setMessages(prev => [...prev, tempMessage]);
+      setConversations(prev => 
+        prev.map(conv => 
           conv._id === activeConversation._id 
             ? { ...conv, latestMessage: tempMessage }
             : conv
         )
       );
       
-      // Clear input
-      const messageCopy = newMessage;
+      // Clear inputs
       setNewMessage("");
-      
-      // Actually send the message to server
-      const response = await axios.post(`${API_BASE_URL}/messages`, {
-        conversationId: activeConversation._id,
-        senderId: currentUser._id,
-        content: messageCopy
-      });
-      
-      // If needed, replace the temp message with the real one from server
-      // This step might not be necessary if you solely rely on socket updates
-      setMessages(prevMessages => 
-        prevMessages.map(msg => 
+      setMediaFiles([]);
+      setPreviewFiles([]);
+
+      // Send to server
+      const response = await axios.post(`${API_BASE_URL}/messages`, messageData);
+
+      // Replace temp message with server response
+      setMessages(prev => 
+        prev.map(msg => 
           msg.isTemp && msg._id === tempMessage._id 
             ? response.data 
             : msg
         )
       );
       
-      // Scroll to bottom again to ensure visibility
       scrollToBottom();
     } catch (err) {
-      console.error("Error sending message:", err);
-      // If error, you might want to show an error and remove the temp message
-      setMessages(prevMessages => 
-        prevMessages.filter(msg => msg._id !== `temp-${Date.now()}`)
+      console.error("Error sending message:", err.response?.data || err.message);
+      setMessages(prev => 
+        prev.filter(msg => msg._id !== `temp-${Date.now()}`)
       );
+      alert('Failed to send message. Please try again.');
     }
   };
 
@@ -666,10 +1195,18 @@ const Chat = () => {
 
   const getConversationImage = (conversation) => {
     if (!conversation?.participants || !currentUser) return "/default-avatar.png";
+    
     const otherParticipant = conversation.participants.find(
       p => p._id !== currentUser._id
     );
-    return otherParticipant?.profilePic ? `${API_BASE_URL}${otherParticipant.profilePic}` : "/default-avatar.png";
+    
+    const imageUrl = otherParticipant?.profilePic 
+      ? `${API_BASE_URL.replace('/api', '')}${otherParticipant.profilePic}` 
+      : "/default-avatar.png";
+    
+    console.log('Corrected Image URL:', imageUrl);
+    
+    return imageUrl;
   };
 
   const formatTime = (timestamp) => {
@@ -677,26 +1214,207 @@ const Chat = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Function to check if message is from current user
   const isCurrentUserMessage = (message) => {
     return message.senderId._id === currentUser?._id;
   };
 
-  // Function to check if we should show the sender avatar
-  // Only show avatar for received messages
   const shouldShowAvatar = (message, index) => {
-  // If it's a sent message, don't show avatar
-  if (isCurrentUserMessage(message)) return false;
-
-  // For received messages, check if it's the first message or from a different sender than previous
-  if (index === 0) return true;
-  const prevMessage = messages[index - 1];
-
-  // Show avatar if sender changed
-  return prevMessage.senderId._id !== message.senderId._id;
+    if (isCurrentUserMessage(message)) return false;
+    if (index === 0) return true;
+    const prevMessage = messages[index - 1];
+    return prevMessage.senderId._id !== message.senderId._id;
+  };
+// Add these functions to your component
+const startRecording = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recorder = new MediaRecorder(stream);
+    const chunks = [];
+    
+    recorder.ondataavailable = (e) => {
+      chunks.push(e.data);
+      setAudioChunks(chunks);
+    };
+    
+    recorder.onstop = () => {
+      const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+      
+      // Create a file object from the blob
+      const audioFile = new File([audioBlob], `voice-note-${Date.now()}.wav`, {
+        type: 'audio/wav'
+      });
+      
+      // Add to media files
+      setMediaFiles([...mediaFiles, audioFile]);
+      
+      // Add to preview files
+      setPreviewFiles([...previewFiles, {
+        file: audioFile,
+        preview: url,
+        type: 'audio',
+        duration: recordingTime
+      }]);
+      
+      // Clean up
+      setRecordingTime(0);
+      clearInterval(timerRef.current);
+    };
+    
+    recorder.start();
+    setMediaRecorder(recorder);
+    setIsRecording(true);
+    
+    // Start timer
+    timerRef.current = setInterval(() => {
+      setRecordingTime(prev => prev + 1);
+    }, 1000);
+    
+  } catch (err) {
+    console.error('Error starting recording:', err);
+    alert('Could not access microphone. Please check permissions.');
+  }
 };
+
+const stopRecording = () => {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    setIsRecording(false);
+  }
+};
+
+const cancelRecording = () => {
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    setIsRecording(false);
+    setAudioChunks([]);
+    setRecordingTime(0);
+    clearInterval(timerRef.current);
+  }
+};
+  const renderMessageMedia = (media) => {
+    return media.map((item, index) => {
+      const mediaUrl = item.url.startsWith('http') 
+      ? item.url 
+      : `${API_BASE_URL.replace('/api', '')}${item.url}`;
+      switch(item.type) {
+        case 'image':
+          return (
+            <div key={index} className="media-container">
+              <img 
+                src={mediaUrl}
+                alt="Shared media"
+                className="message-media"
+                onError={(e) => {
+                  console.error(`Failed to load image: ${mediaUrl}`);
+                  e.target.src = "/default-image.png";
+                }}
+              />
+            </div>
+          );
+        case 'video':
+          return (
+            <div key={index} className="media-container">
+            <video 
+              controls 
+              className="message-media"
+              style={{ maxWidth: '100%', maxHeight: '300px' }}
+            >
+              <source 
+                src={mediaUrl}
+                type={`video/${item.url.split('.').pop()}` || 'video/mp4'}
+              />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          );
+        case 'document':
+          return (
+            <div key={index} className="document-container">
+            <a 
+              href={mediaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download={item.filename || 'document'}
+            >
+              <div className="document-icon">
+                <DescriptionIcon />
+              </div>
+              <span>{item.filename || 'Document'}</span>
+            </a>
+          </div>
+          );
+          case 'audio':
+            return (
+              <div key={index} className="audio-container">
+                <audio controls className="message-audio">
+                  <source src={mediaUrl} type="audio/wav" />
+                  Your browser does not support the audio element.
+                </audio>
+                <span className="audio-duration">
+                  {item.duration ? `${item.duration}s` : ''}
+                </span>
+              </div>
+            );
+            case 'document':
+              return (
+                <div key={index} className="document-container">
+                  <a 
+                    href={mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download={item.filename || 'document'}
+                  >
+                    <div className="document-icon">
+                      <DescriptionIcon />
+                    </div>
+                    <span>{item.filename || 'Document'}</span>
+                  </a>
+                </div>
+              );
+        default:
+          return null;
+      }
+    });
+  };
+
+const ConfirmationDialog = () => (
+  <div className={`confirmation-dialog ${confirmDelete.open ? 'open' : ''}`}>
+    <div className="confirmation-content">
+      <p>{confirmDelete.isUnsend 
+        ? "Are you sure you want to unsend this message?" 
+        : "Are you sure you want to delete this message?"}</p>
+      <div className="confirmation-buttons">
+        <button 
+          className="cancel-btn"
+          onClick={() => setConfirmDelete({ open: false, messageId: null })}
+        >
+          Cancel
+        </button>
+        <button 
+          className="confirm-btn"
+          onClick={() => {
+            if (confirmDelete.isUnsend) {
+              unsendMessage(confirmDelete.messageId);
+            } else {
+              deleteMessage(confirmDelete.messageId);
+            }
+            setConfirmDelete({ open: false, messageId: null });
+          }}
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+);
+  
   return (
     <div className="chat-container">
+      {activeConversation && <ConfirmationDialog />}
       {/* Left Panel - Conversations List */}
       <div className="conversations-panel">
         <div className="search-container">
@@ -725,7 +1443,10 @@ const Chat = () => {
                 onClick={() => startNewConversation(user._id)}
               >
                 <Avatar 
-                  src={user.profilePic ? `${API_BASE_URL}${user.profilePic}` : "/default-avatar.png"} 
+                  src={user.profilePic 
+                    ? `${API_BASE_URL.replace('/api', '')}${user.profilePic}` 
+                    : "/default-avatar.png"
+                  } 
                 />
                 <div className="user-info">
                   <p className="username">{user.username}</p>
@@ -783,60 +1504,170 @@ const Chat = () => {
             </div>
 
             <div className="messages-container">
-    {loading ? (
-      <p className="loading">Loading messages...</p>
-    ) : (
-      <>
-        {messages.length === 0 ? (
-          <p className="no-messages">No messages yet. Say hello!</p>
-        ) : (
-          messages.map((message, index) => {
-            const isSender = isCurrentUserMessage(message);
-            const showAvatar = shouldShowAvatar(message, index);
-            const hasPostReference = message.postReference && message.postReference.postId;
-            console.log("message sender id:", message.senderId);
-            return (
-              <div key={message._id || index} className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}>
-                {!isSender && showAvatar && (
-                  <Avatar
-                    src={message.senderId?.profilePic || "/default-avatar.png"}
-                    className="message-avatar"
-                    sx={{ width: 28, height: 28 }}
-                  />
-                )}
-                {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
-                <div className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}>
-                  <p>{message.content}</p>
-                  {hasPostReference && message.postReference.imageUrl && (
-                    <div className="shared-post-preview" onClick={() => (window.location.href = `/post/${message.postReference.postId}`)}>
-                      <img
-                        src={message.postReference.imageUrl}
-                        alt="Shared post"
-                        className="shared-post-image"
-                        onError={(e) => {
-                          console.error(`Failed to load image: ${message.postReference.imageUrl}`);
-                          e.target.style.display = "none";
-                        }}
-                      />
-                      <div className="shared-post-info">
-                        <p className="shared-post-caption">{message.postReference.caption || "No caption"}</p>
-                        <p className="shared-post-hint">Click to view post</p>
-                      </div>
-                    </div>
-                  )}
-                  <span className="message-time">{formatTime(message.createdAt)}</span>
-                </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={messagesEndRef} />
-      </>
+              {loading ? (
+                <p className="loading">Loading messages...</p>
+              ) : (
+                <>
+                  {messages.length === 0 ? (
+                    <p className="no-messages">No messages yet. Say hello!</p>
+                  ) : (
+                    messages.map((message, index) => {
+                      const isSender = isCurrentUserMessage(message);
+                      const showAvatar = shouldShowAvatar(message, index);
+                      const hasPostReference = message.postReference && message.postReference.postId;
+                      const hasMedia = message.media && message.media.length > 0;
+                      
+                      return (
+                        <div key={message._id || index} className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}>
+                          {!isSender && showAvatar && (
+                            <Avatar
+                              src={message.senderId?.profilePic 
+                                ? `${API_BASE_URL.replace('/api', '')}${message.senderId.profilePic}` 
+                                : "/default-avatar.png"}
+                              className="message-avatar"
+                              sx={{ width: 28, height: 28 }}
+                              onError={(e) => {
+                                console.error('Avatar load error:', e);
+                                e.target.src = "/default-avatar.png";
+                              }}
+                            />
+                          )}
+                          {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
+                          <div className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}>
+                          {isSender && (
+  <div className="message-actions">
+    <button 
+      className="message-action-btn"
+      onClick={(e) => {
+        e.stopPropagation();
+        setConfirmDelete({
+          open: true,
+          messageId: message._id,
+          isUnsend: false
+        });
+      }}
+    >
+      Delete
+    </button>
+    {Date.now() - new Date(message.createdAt).getTime() < 5 * 60 * 1000 && (
+      <button 
+        className="message-action-btn"
+        onClick={(e) => {
+          e.stopPropagation();
+          setConfirmDelete({
+            open: true,
+            messageId: message._id,
+            isUnsend: true
+          });
+        }}
+      >
+        Unsend
+      </button>
     )}
   </div>
-);
+)}
+                            <p>{message.content}</p>
+                            
+                            {hasMedia && (
+                              <div className="message-media-container">
+                                {renderMessageMedia(message.media)}
+                              </div>
+                            )}
+                            
+                            {hasPostReference && (
+                              <div 
+                                className="shared-post-preview" 
+                                onClick={() => window.location.href = `/post/${message.postReference.postId}`}
+                              >
+                                {message.postReference.imageUrl && (
+                                  <img
+                                    src={message.postReference.imageUrl.startsWith('http') 
+                                      ? message.postReference.imageUrl 
+                                      : `${API_BASE_URL.replace('/api', '')}${message.postReference.imageUrl}`}
+                                    alt="Shared post"
+                                    className="shared-post-image"
+                                    onError={(e) => {
+                                      console.error(`Failed to load image: ${message.postReference.imageUrl}`);
+                                      e.target.src = "/default-post.png";
+                                    }}
+                                  />
+                                )}
+                                <div className="shared-post-info">
+                                  <p className="shared-post-caption">
+                                    {message.postReference.caption || "No caption"}
+                                  </p>
+                                  <p className="shared-post-hint">Click to view post</p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <span className="message-time">{formatTime(message.createdAt)}</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                  <div ref={messagesEndRef} />
+                </>
+              )}
+            </div>
+
+            {/* Preview area */}
+            {previewFiles.length > 0 && (
+              <div className="media-preview-container">
+                {previewFiles.map((file, index) => (
+                  <div key={index} className="media-preview-item">
+                    {file.type === 'audio' ? (
+          <div className="preview-audio">
+            <audio controls src={file.preview} />
+            <span>{file.duration}s</span>
+          </div>
+        ) : null}
+                    {file.type === 'image' ? (
+                      <img 
+                        src={file.preview} 
+                        alt="Preview" 
+                        className="preview-image"
+                      />
+                    ) : file.type === 'video' ? (
+                      <video 
+                        src={file.preview} 
+                        className="preview-video"
+                        controls
+                      />
+                    ) : (
+                      <div className="preview-document">
+                      <DescriptionIcon />
+                      <span>{file.filename || 'Document'}</span>
+                    </div>
+                    )}
+                    <button 
+                      className="remove-preview"
+                      onClick={() => removePreview(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="message-input-container">
+              <button 
+                className="attach-button"
+                onClick={() => fileInputRef.current.click()}
+              >
+                <AttachFileIcon />
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  multiple
+                  accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.webm,.pdf"
+                  style={{ display: 'none' }}
+                />
+              </button>
+              
               <input
                 type="text"
                 placeholder="Type a message..."
@@ -845,13 +1676,31 @@ const Chat = () => {
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                 className="message-input"
               />
+              
               <button 
                 onClick={sendMessage} 
                 className="send-button"
-                disabled={!newMessage.trim()}
+                disabled={!newMessage.trim() && mediaFiles.length === 0}
               >
                 <SendIcon />
               </button>
+              <button 
+    className={`voice-button ${isRecording ? 'recording' : ''}`}
+    onMouseDown={startRecording}
+    onMouseUp={stopRecording}
+    onTouchStart={startRecording}
+    onTouchEnd={stopRecording}
+    onMouseLeave={cancelRecording}
+  >
+    {isRecording ? (
+      <>
+        <span className="recording-dot"></span>
+        <span>{recordingTime}s</span>
+      </>
+    ) : (
+      <MicIcon />
+    )}
+  </button>
             </div>
           </>
         ) : (
@@ -866,6 +1715,10 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
+
 
 
 

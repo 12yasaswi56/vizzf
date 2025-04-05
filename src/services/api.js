@@ -75,3 +75,30 @@ export const debugUserPassword = async (data) => {
     throw error;
   }
 };
+
+
+export const forgotPassword = async (email) => {
+  try {
+    console.log("📤 Sending Forgot Password Request:", email);
+    const res = await axios.post(`${API_URL}/forgot-password`, { email });
+    console.log("✅ Forgot Password Request Success:", res.data);
+    return res;
+  } catch (error) {
+    console.error("❌ Forgot Password Error:", error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const resetPassword = async (token, newPassword) => {
+  try {
+    console.log("📤 Sending Password Reset Request");
+    const res = await axios.post(`${API_URL}/reset-password/${token}`, { newPassword });
+    console.log("✅ Password Reset Success:", res.data);
+    return res;
+  } catch (error) {
+    console.error("❌ Password Reset Error:", error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+

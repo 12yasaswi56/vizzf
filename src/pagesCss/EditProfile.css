@@ -1,0 +1,98 @@
+/* Global Styles */
+body {
+    background-color: #f4f7f6;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  }
+  
+  .edit-profile-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 32px;
+    max-width: 600px;
+    margin: 40px auto;
+    transition: all 0.3s ease;
+  }
+  
+  .edit-profile-container:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Avatar Styles */
+  .MuiAvatar-root {
+    border: 4px solid #e0e0e0;
+    transition: transform 0.3s ease;
+  }
+  
+  .MuiAvatar-root:hover {
+    transform: scale(1.05);
+  }
+  
+  /* TextField Styles */
+  .MuiTextField-root {
+    margin-bottom: 16px;
+  }
+  
+  .MuiOutlinedInput-root {
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #1976d2;
+  }
+  
+  .MuiInputLabel-root {
+    font-weight: 500;
+  }
+  
+  /* Button Styles */
+  .MuiButton-containedPrimary {
+    background-color: #1976d2;
+    color: white;
+    text-transform: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .MuiButton-containedPrimary:hover {
+    background-color: #1565c0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .MuiButton-outlinedPrimary {
+    border-radius: 8px;
+    text-transform: none;
+    transition: all 0.3s ease;
+  }
+  
+  /* Alert Styles */
+  .MuiAlert-root {
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 600px) {
+    .edit-profile-container {
+      width: 95%;
+      padding: 16px;
+      margin: 20px auto;
+    }
+  
+    .MuiAvatar-root {
+      width: 80px;
+      height: 80px;
+    }
+  }
+  
+  /* File Upload Input */
+  input[type="file"] {
+    display: none;
+  }
+  
+  /* Loading Spinner */
+  .MuiCircularProgress-root {
+    color: #1976d2;
+  }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Avatar, Button, TextField, Typography, Box, CircularProgress, Alert } from '@mui/material';
-
+import '../pagesCss/EditProfile.css';
 const API_BASE_URL = "http://localhost:5000/api";
 
 const EditProfile = () => {
