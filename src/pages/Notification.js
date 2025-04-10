@@ -45,7 +45,7 @@ const Notification = () => {
                     getNotifications(),
                     getUnreadNotificationsCount()
                 ]);
-    
+                console.log("Notifications data:", notifications); // Add this line
                 setNotifications(notifications);
                 setUnreadCount(unreadData.unreadCount);
             } catch (error) {
@@ -104,6 +104,12 @@ const Notification = () => {
                 return `${notification.senderId?.username || 'Someone'} commented on your post`;
             case 'follow':
                 return `${notification.senderId?.username || 'Someone'} started following you`;
+            case 'unfollow':
+                return `${notification.senderId?.username || 'Someone'} unfollowed you`;
+            case 'save':
+                return `${notification.senderId?.username || 'Someone'} saved your post`;
+            case 'tag':
+                return `${notification.senderId?.username || 'Someone'} tagged you in a post`;
             default:
                 return notification.message || 'New notification';
         }

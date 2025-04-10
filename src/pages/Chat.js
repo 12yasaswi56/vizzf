@@ -787,7 +787,8 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import DescriptionIcon from "@mui/icons-material/Description";
 import socket from '../services/socket';
 import "../pagesCss/chat.css";
-
+import EmojiPicker from 'emoji-picker-react';
+import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 const API_BASE_URL = "http://localhost:5000/api";
 
 const Chat = () => {
@@ -821,6 +822,20 @@ const [audioChunks, setAudioChunks] = useState([]);
 const [audioUrl, setAudioUrl] = useState(null);
 const [recordingTime, setRecordingTime] = useState(0);
 const timerRef = useRef(null);
+
+
+const [unreadCounts, setUnreadCounts] = useState({});
+const [notification, setNotification] = useState(null);
+const notificationTimeoutRef = useRef(null);
+
+const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+const emojiPickerRef = useRef(null);
+const [forwardMessage, setForwardMessage] = useState(null);
+const [forwardRecipients, setForwardRecipients] = useState([]);
+const [showForwardDialog, setShowForwardDialog] = useState(false);
+
+const [showReactionPicker, setShowReactionPicker] = useState(null); // messageId or null
+const reactionPickerRef = useRef(null);
   // Get current user from localStorage when component mounts
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -932,13 +947,50 @@ const timerRef = useRef(null);
     }
   };
 
+  // const handleNewMessage = (message) => {
+  //   if (activeConversation && message.conversationId === activeConversation._id) {
+  //     setMessages(prevMessages => [...prevMessages, message]);
+  //     scrollToBottom();
+  //   }
+    
+  //   // Update the conversation list to show the latest message
+  //   setConversations(prevConversations => 
+  //     prevConversations.map(conv => 
+  //       conv._id === message.conversationId 
+  //         ? { ...conv, latestMessage: message }
+  //         : conv
+  //     )
+  //   );
+  // };
+
   const handleNewMessage = (message) => {
+    // If the message is not from current user and not in active conversation
+    if (message.senderId._id !== currentUser._id) {
+      if (!activeConversation || message.conversationId !== activeConversation._id) {
+        // Show notification
+        showNotification(message, message.senderId);
+        
+        // Update unread counts
+        updateUnreadCounts();
+        
+        // Play notification sound
+        const audio = new Audio('/notification-sound.mp3');
+        audio.play().catch(e => console.log('Audio play failed:', e));
+      }
+    }
+  
+    // Update messages if in active conversation
     if (activeConversation && message.conversationId === activeConversation._id) {
       setMessages(prevMessages => [...prevMessages, message]);
       scrollToBottom();
+      
+      // Mark as read if it's not our own message
+      if (message.senderId._id !== currentUser._id) {
+        markMessagesAsRead(activeConversation._id);
+      }
     }
     
-    // Update the conversation list to show the latest message
+    // Update conversation list
     setConversations(prevConversations => 
       prevConversations.map(conv => 
         conv._id === message.conversationId 
@@ -947,7 +999,26 @@ const timerRef = useRef(null);
       )
     );
   };
-
+  const markMessagesAsRead = async (conversationId) => {
+    try {
+      await axios.post(`${API_BASE_URL}/messages/mark-read`, {
+        conversationId,
+        userId: currentUser._id
+      });
+      
+      // Update local state
+      setMessages(prev => prev.map(msg => 
+        msg.conversationId === conversationId && !msg.read
+          ? { ...msg, read: true }
+          : msg
+      ));
+      
+      // Update unread counts
+      updateUnreadCounts();
+    } catch (err) {
+      console.error('Error marking messages as read:', err);
+    }
+  };
   const deleteMessage = async (messageId) => {
     if (!messageId || !activeConversation?._id || !currentUser?._id) return;
     
@@ -1412,9 +1483,283 @@ const ConfirmationDialog = () => (
   </div>
 );
   
+// Add this useEffect hook to your component
+useEffect(() => {
+  if (!currentUser) return;
+
+  // Listen for notification events
+  socket.on('newNotification', (notification) => {
+    if (notification.type === 'message') {
+      // Only show if not in the active conversation
+      if (!activeConversation || 
+          activeConversation._id !== notification.conversationId) {
+        showNotification({
+          content: notification.message,
+          senderId: notification.sender
+        }, notification.sender);
+      }
+    }
+  });
+
+  // Load initial unread counts
+  updateUnreadCounts();
+
+  return () => {
+    socket.off('newNotification');
+  };
+}, [currentUser, activeConversation]);
+
+  // Function to show a notification
+  const showNotification = (message, sender) => {
+    // Clear any existing notification timeout
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
+  
+    // Set the new notification
+    setNotification({
+      sender,
+      message: message.content || 'Sent a media message',
+      avatar: sender.profilePic 
+        ? `${API_BASE_URL.replace('/api', '')}${sender.profilePic}` 
+        : "/default-avatar.png"
+    });
+  
+    // Play notification sound
+    const audio = new Audio('/notification-sound.mp3');
+    audio.play().catch(e => console.log('Audio play failed:', e));
+  
+    // Auto-hide after 5 seconds
+    notificationTimeoutRef.current = setTimeout(() => {
+      setNotification(null);
+    }, 5000);
+  };
+
+// Function to update unread counts
+const updateUnreadCounts = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/conversations/unread`, {
+      params: { userId: currentUser._id }
+    });
+    setUnreadCounts(response.data);
+  } catch (err) {
+    console.error('Error fetching unread counts:', err);
+  }
+};
+
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+      setShowEmojiPicker(false);
+    }
+  };
+
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
+
+const ForwardDialog = () => (
+  <div className={`forward-dialog ${showForwardDialog ? 'open' : ''}`}>
+    <div className="forward-content">
+      <h3>Forward Message</h3>
+      <p>{forwardMessage?.content || "Media message"}</p>
+      
+      <div className="conversation-list">
+        {conversations.map(conv => (
+          <div 
+            key={conv._id} 
+            className={`conversation-item ${forwardRecipients.includes(conv._id) ? 'selected' : ''}`}
+            onClick={() => {
+              if (forwardRecipients.includes(conv._id)) {
+                setForwardRecipients(prev => prev.filter(id => id !== conv._id));
+              } else {
+                setForwardRecipients(prev => [...prev, conv._id]);
+              }
+            }}
+          >
+            <Avatar src={getConversationImage(conv)} />
+            <p>{getConversationName(conv)}</p>
+          </div>
+        ))}
+      </div>
+      
+      <div className="forward-buttons">
+        <button onClick={() => setShowForwardDialog(false)}>Cancel</button>
+        <button 
+          onClick={handleForwardMessage} 
+          disabled={forwardRecipients.length === 0}
+        >
+          Forward
+        </button>
+      </div>
+    </div>
+  </div>
+);
+const handleForwardMessage = async () => {
+  try {
+    for (const convId of forwardRecipients) {
+      const messageData = {
+        conversationId: convId,
+        senderId: currentUser._id,
+        content: forwardMessage.content || "Forwarded message",
+        media: forwardMessage.media || [],
+        forwardedFrom: forwardMessage.senderId.username || "Unknown"
+      };
+
+      await axios.post(`${API_BASE_URL}/messages`, messageData);
+    }
+
+    // Reset states
+    setShowForwardDialog(false);
+    setForwardMessage(null);
+    setForwardRecipients([]);
+    
+    // Show success feedback
+    alert('Message forwarded successfully');
+  } catch (err) {
+    console.error('Error forwarding message:', err);
+    alert('Failed to forward message. Please try again.');
+  }
+};
+
+const ReactionPicker = ({ messageId, position }) => {
+  const reactions = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
+
+  return (
+    <div 
+      className="reaction-picker"
+      ref={reactionPickerRef}
+      style={{
+        position: 'fixed',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        zIndex: 1000,
+        backgroundColor: 'white',
+        padding: '8px',
+        borderRadius: '20px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+      }}
+    >
+      {reactions.map(reaction => (
+        <span 
+          key={reaction}
+          className="reaction-option"
+          onClick={() => handleReactionSelect(messageId, reaction)}
+          style={{
+            fontSize: '24px',
+            margin: '0 4px',
+            cursor: 'pointer',
+            display: 'inline-block'
+          }}
+        >
+          {reaction}
+        </span>
+      ))}
+    </div>
+  );
+};
+
+const handleReactionSelect = async (messageId, reaction) => {
+  try {
+    await axios.post(`${API_BASE_URL}/messages/react`, {
+      messageId,
+      userId: currentUser._id,
+      reaction
+    });
+    
+    // Update local state
+    setMessages(prev => prev.map(msg => 
+      msg._id === messageId
+        ? {
+            ...msg,
+            reactions: {
+              ...msg.reactions,
+              [currentUser._id]: reaction
+            }
+          }
+        : msg
+    ));
+    
+    setShowReactionPicker(null);
+  } catch (err) {
+    console.error('Error adding reaction:', err);
+  }
+};
+
+const handleLongPressForReaction = (messageId, e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  setShowReactionPicker({
+    messageId,
+    position: {
+      x: rect.left + rect.width / 2,
+      y: rect.top
+    }
+  });
+};
+
+// Add this function to your Chat component
+const formatMessageDate = (timestamp) => {
+  const messageDate = new Date(timestamp);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  // Format as "Today", "Yesterday", or specific date
+  if (messageDate.toDateString() === today.toDateString()) {
+    return "Today";
+  } else if (messageDate.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  } else {
+    // Format as "April 5" or similar
+    return messageDate.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  }
+};
+
   return (
     <div className="chat-container">
-      {activeConversation && <ConfirmationDialog />}
+     {/* Notification component */}
+    {notification && (
+      <div className="message-notification" onClick={() => {
+        // Find the conversation for this message
+        const conv = conversations.find(c => 
+          c.participants.some(p => p._id === currentUser._id) && 
+          c.participants.some(p => p._id === notification.sender._id)
+        );
+        if (conv) {
+          setActiveConversation(conv);
+          setNotification(null);
+        }
+      }}>
+        <img 
+          src={notification.avatar} 
+          alt={notification.sender.username} 
+          className="notification-avatar"
+        />
+        <div className="notification-content">
+          <strong>{notification.sender.username}</strong>
+          <p>{notification.message}</p>
+        </div>
+      </div>
+    )}
+    
+      {activeConversation && (
+  <>
+    <ForwardDialog />
+    {showReactionPicker && (
+  <ReactionPicker 
+    messageId={showReactionPicker.messageId} 
+    position={showReactionPicker.position} 
+  />
+)}
+    <ConfirmationDialog />
+  </>
+)}
       {/* Left Panel - Conversations List */}
       <div className="conversations-panel">
         <div className="search-container">
@@ -1516,94 +1861,150 @@ const ConfirmationDialog = () => (
                       const showAvatar = shouldShowAvatar(message, index);
                       const hasPostReference = message.postReference && message.postReference.postId;
                       const hasMedia = message.media && message.media.length > 0;
-                      
+                       // Check if we need to show a date separator
+      const showDateSeparator = index === 0 || 
+      new Date(message.createdAt).toDateString() !== 
+      new Date(messages[index - 1].createdAt).toDateString();
                       return (
-                        <div key={message._id || index} className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}>
-                          {!isSender && showAvatar && (
-                            <Avatar
-                              src={message.senderId?.profilePic 
-                                ? `${API_BASE_URL.replace('/api', '')}${message.senderId.profilePic}` 
-                                : "/default-avatar.png"}
-                              className="message-avatar"
-                              sx={{ width: 28, height: 28 }}
-                              onError={(e) => {
-                                console.error('Avatar load error:', e);
-                                e.target.src = "/default-avatar.png";
-                              }}
-                            />
-                          )}
-                          {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
-                          <div className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}>
+                        <>
+                          {/* Date separator */}
+          {showDateSeparator && (
+            <div className="date-separator">
+              <span>{formatMessageDate(message.createdAt)}</span>
+            </div>
+          )}
+                        <div 
+                        key={message._id || index} 
+                        className={`message-row ${isSender ? 'sender-row' : 'receiver-row'}`}
+                      >
+                        {!isSender && showAvatar && (
+                          <Avatar
+                            src={message.senderId?.profilePic 
+                              ? `${API_BASE_URL.replace('/api', '')}${message.senderId.profilePic}` 
+                              : "/default-avatar.png"}
+                            className="message-avatar"
+                            sx={{ width: 28, height: 28 }}
+                            onError={(e) => {
+                              console.error('Avatar load error:', e);
+                              e.target.src = "/default-avatar.png";
+                            }}
+                          />
+                        )}
+                        {!isSender && !showAvatar && <div className="avatar-placeholder"></div>}
+                        
+                        {/* This is the message container with the event handlers */}
+                        <div 
+                          className={`message ${isSender ? 'sent' : 'received'} ${message.isTemp ? 'temp-message' : ''}`}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            handleLongPressForReaction(message._id, e);
+                          }}
+                          onTouchStart={(e) => {
+                            this.touchTimer = setTimeout(() => {
+                              handleLongPressForReaction(message._id, e);
+                            }, 500);
+                          }}
+                          onTouchEnd={() => clearTimeout(this.touchTimer)}
+                        >
                           {isSender && (
-  <div className="message-actions">
-    <button 
-      className="message-action-btn"
-      onClick={(e) => {
-        e.stopPropagation();
-        setConfirmDelete({
-          open: true,
-          messageId: message._id,
-          isUnsend: false
-        });
-      }}
-    >
-      Delete
-    </button>
-    {Date.now() - new Date(message.createdAt).getTime() < 5 * 60 * 1000 && (
-      <button 
-        className="message-action-btn"
-        onClick={(e) => {
-          e.stopPropagation();
-          setConfirmDelete({
-            open: true,
-            messageId: message._id,
-            isUnsend: true
-          });
-        }}
-      >
-        Unsend
-      </button>
-    )}
-  </div>
-)}
-                            <p>{message.content}</p>
-                            
-                            {hasMedia && (
-                              <div className="message-media-container">
-                                {renderMessageMedia(message.media)}
-                              </div>
-                            )}
-                            
-                            {hasPostReference && (
-                              <div 
-                                className="shared-post-preview" 
-                                onClick={() => window.location.href = `/post/${message.postReference.postId}`}
+                            <div className="message-actions">
+                              <button 
+                                className="message-action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setForwardMessage(message);
+                                  setShowForwardDialog(true);
+                                }}
                               >
-                                {message.postReference.imageUrl && (
-                                  <img
-                                    src={message.postReference.imageUrl.startsWith('http') 
-                                      ? message.postReference.imageUrl 
-                                      : `${API_BASE_URL.replace('/api', '')}${message.postReference.imageUrl}`}
-                                    alt="Shared post"
-                                    className="shared-post-image"
-                                    onError={(e) => {
-                                      console.error(`Failed to load image: ${message.postReference.imageUrl}`);
-                                      e.target.src = "/default-post.png";
-                                    }}
-                                  />
-                                )}
-                                <div className="shared-post-info">
-                                  <p className="shared-post-caption">
-                                    {message.postReference.caption || "No caption"}
-                                  </p>
-                                  <p className="shared-post-hint">Click to view post</p>
-                                </div>
+                                Forward
+                              </button>
+                              <button 
+                                className="message-action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setConfirmDelete({
+                                    open: true,
+                                    messageId: message._id,
+                                    isUnsend: false
+                                  });
+                                }}
+                              >
+                                Delete
+                              </button>
+                              {Date.now() - new Date(message.createdAt).getTime() < 5 * 60 * 1000 && (
+                                <button 
+                                  className="message-action-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setConfirmDelete({
+                                      open: true,
+                                      messageId: message._id,
+                                      isUnsend: true
+                                    });
+                                  }}
+                                >
+                                  Unsend
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          
+                          <p className="message-content">
+                            {message.content.split(' ').map((word, i) => {
+                              const isEmoji = /\p{Emoji}/u.test(word);
+                              return isEmoji ? (
+                                <span key={i} className="emoji">{word}</span>
+                              ) : (
+                                <span key={i}>{word} </span>
+                              );
+                            })}
+                          </p>
+                          
+                          {hasMedia && (
+                            <div className="message-media-container">
+                              {renderMessageMedia(message.media)}
+                            </div>
+                          )}
+                          
+                          <div className="message-reactions">
+  {message.reactions && Object.entries(message.reactions).map(([userId, reaction]) => (
+    <span key={userId} className="reaction">
+      {reaction}
+    </span>
+  ))}
+</div>
+                          
+                          {hasPostReference && (
+                            <div 
+                              className="shared-post-preview" 
+                              onClick={() => window.location.href = `/post/${message.postReference.postId}`}
+                            >
+                              {message.postReference.imageUrl && (
+                                <img
+                                  src={message.postReference.imageUrl.startsWith('http') 
+                                    ? message.postReference.imageUrl 
+                                    : `${API_BASE_URL.replace('/api', '')}${message.postReference.imageUrl}`}
+                                  alt="Shared post"
+                                  className="shared-post-image"
+                                  onError={(e) => {
+                                    console.error(`Failed to load image: ${message.postReference.imageUrl}`);
+                                    e.target.src = "/default-post.png";
+                                  }}
+                                />
+                              )}
+                              <div className="shared-post-info">
+                                <p className="shared-post-caption">
+                                  {message.postReference.caption || "No caption"}
+                                </p>
+                                <p className="shared-post-hint">Click to view post</p>
                               </div>
-                            )}
-                            
-                            <span className="message-time">{formatTime(message.createdAt)}</span>
-                          </div>
+                            </div>
+                          )}
+                          
+                          <span className="message-time">{formatTime(message.createdAt)}</span>
                         </div>
+                      </div>
+                      </>
                       );
                     })
                   )}
@@ -1653,6 +2054,7 @@ const ConfirmationDialog = () => (
             )}
 
             <div className="message-input-container">
+       
               <button 
                 className="attach-button"
                 onClick={() => fileInputRef.current.click()}
@@ -1667,7 +2069,12 @@ const ConfirmationDialog = () => (
                   style={{ display: 'none' }}
                 />
               </button>
-              
+              <button 
+  className="emoji-button"
+  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+>
+  <InsertEmoticonIcon />
+</button>
               <input
                 type="text"
                 placeholder="Type a message..."
@@ -1684,6 +2091,7 @@ const ConfirmationDialog = () => (
               >
                 <SendIcon />
               </button>
+
               <button 
     className={`voice-button ${isRecording ? 'recording' : ''}`}
     onMouseDown={startRecording}
@@ -1701,6 +2109,18 @@ const ConfirmationDialog = () => (
       <MicIcon />
     )}
   </button>
+  {showEmojiPicker && (
+  <div className="emoji-picker-container" ref={emojiPickerRef}>
+    <EmojiPicker 
+      onEmojiClick={(emojiObject) => {
+        setNewMessage(prev => prev + emojiObject.emoji);
+      }}
+      width={300}
+      height={350}
+      previewConfig={{ showPreview: false }}
+    />
+  </div>
+)}
             </div>
           </>
         ) : (

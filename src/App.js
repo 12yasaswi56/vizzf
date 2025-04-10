@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import PostDetail from "./pages/PostDetail";
 import Notification from "./pages/Notification";
+import Settings from "./pages/Settings";
 const App = () => {
   // const [user, setUser] = useState(null);
   const [user, setUser] = useState(() => {
@@ -47,6 +48,7 @@ const App = () => {
         <Route path="/edit-profile/:userId" element={<EditProfile />} />
         <Route path="/post/:postId" element={<PostDetail />} />
         <Route path="/notifications" element={<Notification />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );

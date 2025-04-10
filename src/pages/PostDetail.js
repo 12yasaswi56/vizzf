@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Typography, Card, CardMedia, Button, CircularProgress, Box, Alert } from '@mui/material';
+import {
+  Typography,
+  Card,
+  CardMedia,
+  Button,
+  CircularProgress,
+  Box,
+  Alert,
+  IconButton,
+  MobileStepper
+} from '@mui/material';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -10,11 +22,11 @@ const PostDetail = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        // Validate postId format
         if (!postId || postId.length !== 24) {
           throw new Error('Invalid post ID');
         }
@@ -32,6 +44,41 @@ const PostDetail = () => {
     fetchPost();
   }, [postId]);
 
+  // Get all images from the post
+  const getAllImages = (post) => {
+    if (!post) return [];
+    
+    if (post.media && post.media.length > 0) {
+      return post.media.filter(item => item.type === 'image').map(item => item.url);
+    }
+    
+    if (post.images && post.images.length > 0) {
+      return post.images;
+    }
+    
+    if (post.image) {
+      return [post.image];
+    }
+    
+    return [];
+  };
+
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return '/path/to/default/image.png';
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    return `http://localhost:5000${imageUrl}`;
+  };
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
   if (loading) return <CircularProgress />;
   
   if (error) return (
@@ -43,24 +90,88 @@ const PostDetail = () => {
     </Alert>
   );
 
-  // Handle case where post might be null even after loading
   if (!post) return <Typography>No post found</Typography>;
+
+  const images = getAllImages(post);
+  const maxSteps = images.length;
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
       <Card sx={{ maxWidth: 500 }}>
-        {/* Add checks for image existence */}
-        {post.image && (
-          <CardMedia 
-            component="img" 
-            height="300" 
-            image={`http://localhost:5000${post.image}`} 
-            alt="Post" 
-            onError={(e) => {
-              e.target.onerror = null; 
-              e.target.src = '/path/to/default/image.png';
-            }}
-          />
+        {/* Image Carousel */}
+        {images.length > 0 && (
+          <Box sx={{ position: 'relative' }}>
+            <CardMedia
+              component="img"
+              height="300"
+              image={getImageUrl(images[activeStep])}
+              alt={`Post image ${activeStep + 1}`}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/path/to/default/image.png';
+              }}
+            />
+            
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <IconButton
+                  onClick={handleBack}
+                  disabled={activeStep === 0}
+                  sx={{
+                    position: 'absolute',
+                    left: 8,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'white',
+                    bgcolor: 'rgba(0,0,0,0.5)',
+                    '&:hover': {
+                      bgcolor: 'rgba(0,0,0,0.7)',
+                    }
+                  }}
+                >
+                  <KeyboardArrowLeft />
+                </IconButton>
+                
+                <IconButton
+                  onClick={handleNext}
+                  disabled={activeStep === maxSteps - 1}
+                  sx={{
+                    position: 'absolute',
+                    right: 8,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'white',
+                    bgcolor: 'rgba(0,0,0,0.5)',
+                    '&:hover': {
+                      bgcolor: 'rgba(0,0,0,0.7)',
+                    }
+                  }}
+                >
+                  <KeyboardArrowRight />
+                </IconButton>
+              </>
+            )}
+            
+            {/* Stepper Dots */}
+            {images.length > 1 && (
+              <MobileStepper
+                steps={maxSteps}
+                position="static"
+                activeStep={activeStep}
+                sx={{
+                  justifyContent: 'center',
+                  bgcolor: 'transparent',
+                  position: 'absolute',
+                  bottom: 16,
+                  left: 0,
+                  right: 0
+                }}
+                nextButton={null}
+                backButton={null}
+              />
+            )}
+          </Box>
         )}
         
         <Typography variant="h6" sx={{ padding: 2 }}>

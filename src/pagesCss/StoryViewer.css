@@ -217,3 +217,18 @@
 .viewers-button svg {
   font-size: 16px;
 }
+
+.story-menu-button {
+  margin-left: 10px;
+  padding: 4px;
+}
+
+.story-user-info {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.username {
+  margin: 0 10px;
+}

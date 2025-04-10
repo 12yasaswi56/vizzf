@@ -176,8 +176,13 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from 'axios';
 import '../pagesCss/StoryViewer.css';
+import IconButton from '@mui/material/IconButton';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const StoryViewer = ({ story, onClose, stories, setActiveStory }) => {
+const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory }) => {
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [showViewers, setShowViewers] = useState(false);
@@ -186,10 +191,31 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory }) => {
   const progressInterval = useRef(null);
   const storyDuration = 5000; // 5 seconds per story
   const progressStep = 100 / (storyDuration / 100); // Progress increment per 100ms
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   // Current story index in the stories array
   const currentStoryIndex = stories.findIndex(s => s._id === story._id);
   
+  // Check if current user is the owner of the story
+  const isCurrentUserStory = story.user?._id === JSON.parse(localStorage.getItem('user'))?._id;
+
+  const handleMenuOpen = (event) => {
+    setMenuAnchorEl(event.currentTarget);
+    setIsPaused(true);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setIsPaused(false);
+  };
+
+  const handleDeleteClick = () => {
+    handleMenuClose();
+    if (onDeleteStory) {
+      onDeleteStory(story._id);
+    }
+    onClose(); // Close the viewer after deletion
+  };
   // Mark story as viewed when opened
   useEffect(() => {
     const markAsViewed = async () => {
@@ -369,7 +395,29 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory }) => {
           <span className="username">{story.user?.username || "User"}</span>
           <span className="timestamp">{new Date(story.createdAt).toLocaleString()}</span>
         </div>
-        
+          {/* Three-dot menu for story owner */}
+          {isCurrentUserStory && (
+            <>
+              <IconButton 
+                className="story-menu-button"
+                onClick={handleMenuOpen}
+                aria-label="story actions"
+              >
+                <MoreVertIcon style={{ color: 'white' }} />
+              </IconButton>
+              
+              <Menu
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleDeleteClick}>
+                  <DeleteIcon style={{ marginRight: '8px' }} />
+                  Delete Story
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         <div className="close-button" onClick={onClose}>
           <CloseIcon />
         </div>
