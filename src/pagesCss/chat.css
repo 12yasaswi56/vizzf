@@ -987,3 +987,559 @@ video.message-media {
   text-align: center;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
+
+
+/* Call styles */
+.call-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-container {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+}
+
+.user-video {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  z-index: 2;
+}
+
+.peer-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.call-controls {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.call-info {
+  color: white;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.call-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.call-buttons button {
+  background: #333;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.call-buttons button:hover {
+  background: #555;
+}
+
+.call-buttons button.active {
+  background: #f44336;
+}
+
+.call-buttons button.end-call {
+  background: #f44336;
+}
+
+.call-buttons button.end-call:hover {
+  background: #d32f2f;
+}
+
+/* Call buttons in header */
+.call-buttons-container {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+  padding-right: 15px;
+}
+
+.call-button {
+  background: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.call-button:hover {
+  background: #f0f0f0;
+  color: #007bff;
+}
+
+.call-button.audio {
+  color: #28a745;
+}
+
+.call-button.video {
+  color: #dc3545;
+}
+
+.call-button svg {
+  font-size: 20px;
+}
+
+
+
+
+/* Group dialog styles */
+.group-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.group-dialog.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.group-dialog-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.group-name-input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.followers-list {
+  margin: 15px 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.follower-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.follower-item:hover {
+  background-color: #f5f5f5;
+}
+
+.follower-item.selected {
+  background-color: #e3f2fd;
+}
+
+.group-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.create-group-btn {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.create-group-btn:hover {
+  background-color: #1565c0;
+}
+
+/* Group chat header styles */
+.group-header {
+  display: flex;
+  align-items: center;
+}
+
+.group-info {
+  margin-left: 10px;
+}
+
+.group-name {
+  font-weight: bold;
+  margin: 0;
+}
+
+.group-members {
+  font-size: 0.8em;
+  color: #666;
+  margin: 0;
+}
+
+/* Default group image */
+.default-group {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #1976d2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.sender-name {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin: 0 0 4px 0;
+  color: #555;
+}
+
+/* Adjust message padding to accommodate sender name */
+.message.received {
+  padding-top: 18px;
+}
+
+
+/* Group Info Modal */
+.group-info-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.group-image-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.group-image-container img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 3px solid #1976d2;
+}
+
+.save-image-btn {
+  display: block;
+  margin: 10px auto;
+  padding: 8px 15px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.members-list {
+  margin-top: 20px;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.member-item img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.admin-badge {
+  margin-left: auto;
+  background: #1976d2;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+/* Enhanced Group Info Modal */
+.edit-input, .edit-textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.edit-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.theme-picker {
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+}
+
+.theme-picker label {
+  margin-right: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.members-section {
+  margin-top: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.add-members-dialog {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.available-users {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 10px 0;
+}
+
+.user-select {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.user-select input {
+  margin-right: 10px;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.member-name {
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.member-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.make-admin-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.remove-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Apply theme to chat header */
+.conversation-header {
+  border-bottom: 2px solid var(--group-theme, #1976d2);
+}
+
+/* Theme color classes for messages */
+.message.sent {
+  background-color: var(--group-theme, #1976d2);
+  color: white;
+}
+
+.message.received {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+/* Add to your chat.css */
+.group-image-container {
+  position: relative;
+  margin: 20px auto;
+  width: 150px;
+  height: 150px;
+}
+
+.group-image-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 3px solid var(--group-theme, #1976d2);
+}
+
+.default-group-img {
+  background-color: var(--group-theme, #1976d2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 50px;
+}
+
+.save-image-btn {
+  display: block;
+  margin: 10px auto;
+  padding: 8px 15px;
+  background-color: var(--group-theme, #1976d2);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.save-image-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 5px;
+  background-color: #f1f1f1;
+  margin-top: 5px;
+}
+
+.progress {
+  height: 100%;
+  background-color: var(--group-theme, #1976d2);
+  width: 0%;
+  transition: width 0.3s;
+}
+
+
+.conversation-item {
+  position: relative;
+  padding-right: 30px;
+}
+
+.delete-conversation-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-conversation-btn:hover {
+  background: #f5f5f5;
+  color: #f44336;
+}
+
+.conversation-main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+}

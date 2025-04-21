@@ -947,45 +947,7 @@
 }
 
 
-/* Suggested Users Styles */
-.suggested-users-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
 
-.suggested-user {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  flex: 1;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.username {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.user-bio {
-  font-size: 12px;
-  color: #8e8e8e;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}
 
 
 /* File preview carousel */
@@ -1364,3 +1326,16 @@
   font-size: 14px !important;
   padding: 8px 16px !important;
 }
+
+
+/* Add to your Home.css */
+.avatar-fallback {
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+}
+
+

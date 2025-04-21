@@ -139,8 +139,6 @@
 
 // export default Login;
 
-
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, signupUser, testBcrypt } from "../services/api";
@@ -159,11 +157,9 @@ const Login = ({ setUser }) => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
-
-
-
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -181,148 +177,191 @@ const Login = ({ setUser }) => {
       setIsLoading(false);
     }
   };
+  
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError(null);
-      setIsLoading(true);
-  
-      try {
-        if (isSignup) {
-          console.log("🔹 Signup Request:", { username, email, password });
-  
-          try {
-            const testResult = await testBcrypt({ password });
-            console.log("📊 Bcrypt Test Result:", testResult.data);
-          } catch (err) {
-            console.warn("⚠️ Bcrypt test failed:", err);
-          }
-  
-          const signupResponse = await signupUser({ username, email, password });
-          console.log("✅ Signup Success:", signupResponse.data);
-  
-          await createCometChatUser(username, username);
-  
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      if (isSignup) {
+        console.log("🔹 Signup Request:", { username, email, password });
+
+        try {
+          const testResult = await testBcrypt({ password });
+          console.log("📊 Bcrypt Test Result:", testResult.data);
+        } catch (err) {
+          console.warn("⚠️ Bcrypt test failed:", err);
+        }
+
+        const signupResponse = await signupUser({ username, email, password });
+        console.log("✅ Signup Success:", signupResponse.data);
+
+        await createCometChatUser(username, username);
+
+        if (rememberMe) {
           localStorage.setItem("signup-email", email);
           localStorage.setItem("signup-password", password);
-  
-          alert("Signup successful! Please log in with your credentials.");
+        }
+
+        setMessage("Signup successful! Please log in with your credentials.");
+        setTimeout(() => {
           setIsSignup(false);
-        } else {
-          console.log("🔹 Login Request:", { email, password });
-          const res = await loginUser({ email, password });
-  
-          if (res?.data?.token && res?.data?.user) {
-            const user = res.data.user;
-  
-            console.log("✅ Login Response:", user);
-            console.log("🖼️ Received profilePic:", user.profilePic);
-  
-            localStorage.setItem("auth-token", res.data.token);
-            localStorage.setItem("user", JSON.stringify(user));
-  
+          setMessage(null);
+        }, 2000);
+      } else {
+        console.log("🔹 Login Request:", { email, password });
+        const res = await loginUser({ email, password });
+
+        if (res?.data?.token && res?.data?.user) {
+          const user = res.data.user;
+
+          console.log("✅ Login Response:", user);
+          console.log("🖼️ Received profilePic:", user.profilePic);
+
+          localStorage.setItem("auth-token", res.data.token);
+          localStorage.setItem("user", JSON.stringify(user));
+
+          if (!rememberMe) {
             localStorage.removeItem("signup-email");
             localStorage.removeItem("signup-password");
-  
-            if (user.cometchatUID) {
-              try {
-                await CometChat.login(user.cometchatUID, COMETCHAT_CONFIG.AUTH_KEY);
-                console.log("✅ CometChat Login Successful");
-              } catch (cometChatError) {
-                console.error("❌ CometChat Login Failed:", cometChatError);
-              }
-            }
-  
-            setUser(user);
-            navigate("/");
-          } else {
-            setError("Invalid response from server");
           }
+
+          if (user.cometchatUID) {
+            try {
+              await CometChat.login(user.cometchatUID, COMETCHAT_CONFIG.AUTH_KEY);
+              console.log("✅ CometChat Login Successful");
+            } catch (cometChatError) {
+              console.error("❌ CometChat Login Failed:", cometChatError);
+            }
+          }
+
+          setUser(user);
+          navigate("/");
+        } else {
+          setError("Invalid response from server");
         }
-      } catch (error) {
-        console.error("❌ Auth Error:", error.response ? error.response.data : error);
-        setError(error.response ? error.response.data.message : "Something went wrong");
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("❌ Auth Error:", error.response ? error.response.data : error);
+      setError(error.response ? error.response.data.message : "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="auth-container">
-      <h2>
-        {isForgotPassword 
-          ? "Forgot Password" 
-          : (isSignup ? "Create Account" : "Login")
-        }
-      </h2>
-      
-      {error && <p className="error-message">{error}</p>}
-      {message && <p className="success-message">{message}</p>}
-      
-      <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit}>
-        {/* Existing form fields */}
-        <div className="form-group">
-          <input 
-            type="email" 
-            placeholder="Email" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)} 
-            required
-            className="form-input"
-          />
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-header">
+          <div className="platform-logo"></div>
+          <h2>
+            {isForgotPassword 
+              ? "Reset Your Password" 
+              : (isSignup ? "Join the Research Community" : "Welcome Back")
+            }
+          </h2>
+          <p className="platform-tagline">Connect with researchers worldwide</p>
         </div>
-
-        {!isForgotPassword && (
+        
+        {error && <p className="error-message">{error}</p>}
+        {message && <p className="success-message">{message}</p>}
+        
+        <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit}>
+          {isSignup && (
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input 
+                id="username"
+                type="text" 
+                placeholder="Choose a username" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)} 
+                required
+                className="form-input"
+              />
+            </div>
+          )}
+          
           <div className="form-group">
+            <label htmlFor="email">Email Address</label>
             <input 
-              type="password" 
-              placeholder="Password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)} 
+              id="email"
+              type="email" 
+              placeholder="you@example.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)} 
               required
               className="form-input"
             />
           </div>
+
+          {!isForgotPassword && (
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input 
+                id="password"
+                type="password" 
+                placeholder="Your secure password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)} 
+                required
+                className="form-input"
+              />
+            </div>
+          )}
+          
+          {!isForgotPassword && (
+            <div className="form-options">
+              <div className="remember-me">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <label htmlFor="rememberMe">Remember me</label>
+              </div>
+              
+              {!isSignup && (
+                <p 
+                  onClick={() => setIsForgotPassword(true)} 
+                  className="forgot-password-link"
+                >
+                  Forgot Password?
+                </p>
+              )}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            className="submit-button"
+            disabled={isLoading}
+          >
+            {isLoading 
+              ? "Processing..." 
+              : (isForgotPassword 
+                ? "Send Reset Link" 
+                : (isSignup ? "Create Account" : "Sign In"))
+            }
+          </button>
+        </form>
+
+        {!isForgotPassword && (
+          <p className="toggle-auth-mode" onClick={() => setIsSignup(!isSignup)}>
+            {isSignup 
+              ? "Already have an account? Sign in" 
+              : "New to our platform? Create an account"}
+          </p>
         )}
 
-        <button 
-          type="submit" 
-          className="submit-button"
-          disabled={isLoading}
-        >
-          {isLoading 
-            ? "Processing..." 
-            : (isForgotPassword 
-              ? "Send Reset Link" 
-              : (isSignup ? "Sign Up" : "Login"))
-          }
-        </button>
-      </form>
-
-      {!isForgotPassword && (
-        <div className="auth-links">
-          <p 
-            onClick={() => setIsSignup(!isSignup)} 
-            className="toggle-auth-mode"
-          >
-            {isSignup ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+        {isForgotPassword && (
+          <p className="back-to-login" onClick={() => setIsForgotPassword(false)}>
+            Back to Login
           </p>
-          <p 
-            onClick={() => setIsForgotPassword(true)} 
-            className="forgot-password-link"
-          >
-            Forgot Password?
-          </p>
-        </div>
-      )}
-
-      {isForgotPassword && (
-        <p 
-          onClick={() => setIsForgotPassword(false)} 
-          className="back-to-login"
-        >
-          Back to Login
-        </p>
-      )}
+        )}
+      </div>
     </div>
   );
 };

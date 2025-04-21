@@ -1,0 +1,379 @@
+.reels-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #000;
+    color: #fff;
+  }
+  
+  .reels-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .reels-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  
+  .reel-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+  }
+  
+  .reel-video-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+  }
+  
+  .reel-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .reel-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .reel-sidebar {
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  
+  .reel-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .reel-avatar {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  
+  .reel-username {
+    font-size: 12px;
+    text-align: center;
+  }
+  
+  .reel-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .reel-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .reel-music {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 12px;
+  }
+  
+  .reel-caption {
+    font-size: 14px;
+    margin-bottom: 15px;
+    word-break: break-word;
+  }
+  
+  .reel-comments-section {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 80px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+  
+  .reel-comment {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .comment-avatar {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .comment-content {
+    flex: 1;
+  }
+  
+  .comment-username {
+    font-weight: bold;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+  
+  .reel-comment-form {
+    display: flex;
+    margin-top: 10px;
+  }
+  
+  .reel-comment-form input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 20px;
+    margin-right: 10px;
+  }
+  
+  .reel-comment-form button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    background-color: #0095f6;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .reels-navigation {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+  
+  .reels-navigation:first-child {
+    left: 10px;
+  }
+  
+  .reels-navigation:last-child {
+    right: 10px;
+  }
+  
+  .reels-loading,
+  .reels-error,
+  .reels-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+  }
+  
+  .reel-upload-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .reel-upload-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .reel-upload-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .video-preview-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  
+  .video-preview {
+    max-width: 100%;
+    max-height: 50vh;
+  }
+  
+  .upload-prompt {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .music-section {
+    display: flex;
+    align-items: center;
+    margin: 16px 0;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+  
+  .error-message {
+    margin: 16px 0;
+    text-align: center;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  .reels-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: relative;
+    background-color: #000;
+    overflow: hidden;
+  }
+  
+  .reels-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  .reels-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .reel-wrapper {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.5s ease;
+  }
+  
+  .reel-wrapper.active {
+    transform: translateY(0);
+    z-index: 2;
+  }
+  
+  .reel-wrapper.inactive {
+    transform: translateY(100%);
+    z-index: 1;
+  }
+  
+  .reels-navigation {
+    position: absolute;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .reels-navigation.top {
+    top: 60px;
+  }
+  
+  .reels-navigation.bottom {
+    bottom: 20px;
+  }
+  
+  .reels-navigation button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 5px;
+    border-radius: 50%;
+  }
+  
+  .reels-navigation button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .reels-loading,
+  .reels-error,
+  .reels-empty {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+    background-color: #000;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .reels-empty button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #3897f0;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* Make sure the Reel component takes full height and width */
+  .reel-container {
+    height: 100%;
+    width: 100%;
+    position: relative;
+  }

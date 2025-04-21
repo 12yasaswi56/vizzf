@@ -401,7 +401,13 @@ useEffect(() => {
       const headers = token ? { 'x-auth-token': token } : {};
 
       const response = await axios.get(`${API_BASE_URL}/profile/${userId}`, { headers });
-      setProfileData(response.data);
+        // Ensure profilePic is properly formatted
+    const profileData = {
+      ...response.data,
+      profilePic: response.data.profilePic || null
+    };
+    setProfileData(profileData);
+      // setProfileData(response.data);
 
       // Check if current user is following this profile
       if (currentUser && response.data.followers.includes(currentUser._id)) {
@@ -565,12 +571,12 @@ useEffect(() => {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <Avatar 
-          src={profileData.profilePic ? `http://localhost:5000${profileData.profilePic}` : ''} 
-          alt={profileData.username} 
-          className="profile-avatar"
-          sx={{ width: 120, height: 120 }}
-        />
+      <Avatar 
+  src={profileData.profilePic || ''} // Cloudinary URLs are already full URLs
+  alt={profileData.username} 
+  className="profile-avatar"
+  sx={{ width: 120, height: 120 }}
+/>
         
         <div className="profile-info">
           <div className="profile-user-info">

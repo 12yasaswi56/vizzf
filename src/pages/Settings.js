@@ -108,23 +108,29 @@ const Settings = () => {
     }
   };
 
-  const handleToggleVisibility = async () => {
-    try {
-      const newVisibility = !isPublic;
-      const token = localStorage.getItem('auth-token');
-      
-      await axios.put(
-        `${API_BASE_URL}/profile/visibility`,
-        { isPublic: newVisibility },
-        { headers: { 'x-auth-token': token } }
-      );
-      
-      setIsPublic(newVisibility);
-      setSuccess(`Profile is now ${newVisibility ? 'public' : 'private'}`);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update profile visibility');
-    }
-  };
+// Update the handleToggleVisibility function
+const handleToggleVisibility = async () => {
+  try {
+    const newVisibility = !isPublic;
+    const token = localStorage.getItem('auth-token');
+    
+    const response = await axios.put(
+      `${API_BASE_URL}/profile/visibility`,
+      { isPrivate: !newVisibility }, // Note: We're using isPrivate here
+      { headers: { 'x-auth-token': token } }
+    );
+    
+    setIsPublic(newVisibility);
+    setSuccess(`Profile is now ${newVisibility ? 'public' : 'private'}`);
+    
+    // Update local user data
+    const updatedUser = { ...currentUser, isPrivate: !newVisibility };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setCurrentUser(updatedUser);
+  } catch (err) {
+    setError(err.response?.data?.error || 'Failed to update profile visibility');
+  }
+};
 
   const handleDeleteAccount = async () => {
     try {

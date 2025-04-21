@@ -167,7 +167,6 @@
 // };
 
 // export default StoryViewer;
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Avatar } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -181,7 +180,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import { useNavigate } from 'react-router-dom';
 const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory }) => {
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -192,7 +191,7 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory })
   const storyDuration = 5000; // 5 seconds per story
   const progressStep = 100 / (storyDuration / 100); // Progress increment per 100ms
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-
+  const navigate = useNavigate();
   // Current story index in the stories array
   const currentStoryIndex = stories.findIndex(s => s._id === story._id);
   
@@ -331,15 +330,12 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory })
   };
   
   // Get the full URL for the story media
-  const getFullMediaUrl = (path) => {
-    // If the path is already a full URL, return it
-    if (path.startsWith('http')) {
-      return path;
-    }
-    
-    // Otherwise, construct the full URL
-    return `http://localhost:5000${path}`;
-  };
+ // Get the full URL for the story media
+ const getFullMediaUrl = (path) => {
+  if (!path) return "/default-avatar.png";
+  if (path.startsWith('http')) return path;
+  return `http://localhost:5000${path}`;
+};
   
   return (
     <div className="story-viewer">
@@ -356,9 +352,11 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory })
             <div className="viewers-list">
               {viewers.length > 0 ? (
                 viewers.map(viewer => (
-                  <div key={viewer._id} className="viewer-item">
+                  <div key={viewer._id} className="viewer-item"
+                  onClick={() => window.location.href = `/profile/${viewer._id}`}
+                  style={{ cursor: 'pointer' }}>
                     <Avatar 
-                      src={viewer.profilePic ? `http://localhost:5000${viewer.profilePic}` : "/default-avatar.png"}
+                      src={getFullMediaUrl(viewer.profilePic)}
                       className="viewer-avatar"
                     />
                     <span className="viewer-username">{viewer.username}</span>

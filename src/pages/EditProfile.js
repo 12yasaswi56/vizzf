@@ -80,35 +80,22 @@ const EditProfile = () => {
       setUploading(true);
       const token = localStorage.getItem('auth-token');
       
-      // Log the token for debugging
-      console.log("Token before upload:", token ? "Token exists" : "No token found");
-      
-      // Important: For file uploads, don't set Content-Type
-      // Let the browser set it with the correct boundary for multipart/form-data
       const response = await axios.post(`${API_BASE_URL}/profile/upload`, formData, {
         headers: {
           'x-auth-token': token
-          // Don't set Content-Type here, axios will set it correctly with boundary
         }
       });
       
       // Update the profile pic in the state
       setUserData({ ...userData, profilePic: response.data.profilePic });
-      console.log("Profile picture uploaded successfully:", response.data.profilePic);
       setError(null);
     } catch (error) {
       console.error("Error uploading profile picture:", error);
-      if (error.response) {
-        console.log("Error response:", error.response.status, error.response.data);
-        
-        if (error.response.status === 401) {
-          setAuthStatus({ valid: false, message: 'Authentication failed. Please log in again.' });
-          localStorage.removeItem('auth-token'); // Clear invalid token
-        } else {
-          setError(`Failed to upload: ${error.response.data.error || "Unknown error"}`);
-        }
+      if (error.response?.status === 401) {
+        setAuthStatus({ valid: false, message: 'Authentication failed. Please log in again.' });
+        localStorage.removeItem('auth-token');
       } else {
-        setError("Network error while uploading");
+        setError(`Failed to upload: ${error.response?.data?.error || "Unknown error"}`);
       }
     } finally {
       setUploading(false);
@@ -178,11 +165,12 @@ const EditProfile = () => {
       <Typography variant="h4" sx={{ mb: 3 }}>Edit Profile</Typography>
       
       <Box sx={{ mb: 3, textAlign: 'center' }}>
-        <Avatar
-          src={userData.profilePic ? `http://localhost:5000${userData.profilePic}` : ''}
-          alt="Profile Picture"
-          sx={{ width: 100, height: 100, margin: '0 auto', mb: 2 }}
-        />
+      
+<Avatar
+  src={userData.profilePic || ''} // Cloudinary URLs are already full URLs
+  alt="Profile Picture"
+  sx={{ width: 100, height: 100, margin: '0 auto', mb: 2 }}
+/>
         
         <label htmlFor="profile-pic-upload">
           <input

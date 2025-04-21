@@ -16,9 +16,10 @@
     align-items: center;
     color: white;
     position: relative;
-    z-index: 10;
-  }
-  
+    z-index: 100;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+}
+
   .progress-container {
     position: absolute;
     top: 0;
@@ -27,6 +28,7 @@
     display: flex;
     gap: 5px;
     padding: 10px 15px;
+    z-index: 101; /* Above header */
   }
   
   .progress-bar-container {
@@ -69,6 +71,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
   }
   
   .story-image {
@@ -79,28 +82,35 @@
   
   .story-caption {
     position: absolute;
-    bottom: 30px;
+    bottom: 100px; /* Increased from 30px to make space for viewers button */
     left: 0;
     right: 0;
     text-align: center;
     color: white;
-    padding: 20px;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
-  }
-  
-  .nav-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
+    padding: 15px 20px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    z-index: 50;
+    pointer-events: none;
+    max-width: 80%;
+    margin: 0 auto;
+    border-radius: 20px;
+    word-break: break-word;
+}
+  /* Navigation Arrows */
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 70; /* Above everything else */
+}
   
   .nav-button.prev {
     left: 15px;
@@ -128,7 +138,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .viewers-modal-content {
@@ -194,10 +204,10 @@
 /* Viewers Button */
 .viewers-button {
   position: absolute;
-  bottom: 20px;
+  bottom: 40px; /* Positioned above caption */
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -207,7 +217,9 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  z-index: 10;
+  z-index: 60; /* Above caption */
+  min-width: 100px;
+  justify-content: center;
 }
 
 .viewers-button:hover {
@@ -231,4 +243,45 @@
 
 .username {
   margin: 0 10px;
+}
+
+.story-viewer-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+/* .viewers-button {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+} */
+
+.viewers-button:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+  .story-caption {
+      bottom: 120px;
+      font-size: 1.1rem;
+  }
+  
+  .viewers-button {
+      bottom: 60px;
+      padding: 10px 20px;
+      font-size: 16px;
+  }
+  
+  .nav-button {
+      width: 50px;
+      height: 50px;
+  }
 }

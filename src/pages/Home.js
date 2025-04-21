@@ -39,7 +39,7 @@ import Logout from '@mui/icons-material/Logout';
 import Settings from '@mui/icons-material/Settings';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
-
+import SlideshowIcon from "@mui/icons-material/Slideshow";
 
 
 // Define API base URL
@@ -621,91 +621,67 @@ const handleShare = async (postId) => {
 
 // In Home.js, update the confirmShare function:
 const confirmShare = async () => {
-    try {
-      const sharedPost = posts.find(post => post._id === currentPostToShare);
-      if (!sharedPost) throw new Error("Post not found");
-  
-      // Format the post reference properly
-      const postReference = {
-        postId: sharedPost._id,
-        imageUrl: sharedPost.image.startsWith('http') 
-          ? sharedPost.image 
-          : `${API_BASE_URL.replace('/api', '')}${sharedPost.image}`,
-        caption: sharedPost.caption || '',
-        userId: sharedPost.user._id,
-        username: sharedPost.user.username,
-        userProfilePic: sharedPost.user.profilePic
-      };
-  
-      // Share the post
-      await axios.post(`${API_BASE_URL}/posts/${currentPostToShare}/share`, {
-        userId: currentUser._id,
-        selectedUserIds: selectedUsers,
+  try {
+    const sharedPost = posts.find(post => post._id === currentPostToShare);
+    if (!sharedPost) throw new Error("Post not found");
+
+    // Get the first image if using multiple images, or fall back to single image
+    const postImage = sharedPost.images?.[0] || sharedPost.image || null;
+
+    // Format the post reference properly
+    const postReference = {
+      postId: sharedPost._id,
+      imageUrl: postImage, // Use the image directly (Cloudinary URLs are already full URLs)
+      caption: sharedPost.caption || '',
+      userId: sharedPost.user._id,
+      username: sharedPost.user.username,
+      userProfilePic: sharedPost.user.profilePic,
+      taggedUsers: sharedPost.taggedUsers || []
+    };
+
+    // Share the post
+    await axios.post(`${API_BASE_URL}/posts/${currentPostToShare}/share`, {
+      userId: currentUser._id,
+      selectedUserIds: selectedUsers,
+      postReference
+    });
+
+    // Create messages in conversations
+    for (const recipientId of selectedUsers) {
+      const conversationResponse = await axios.post(`${API_BASE_URL}/conversations`, {
+        participants: [currentUser._id, recipientId]
+      });
+
+      await axios.post(`${API_BASE_URL}/messages`, {
+        conversationId: conversationResponse.data._id,
+        senderId: currentUser._id,
+        content: `Shared a post: "${sharedPost.caption || 'No caption'}"`,
         postReference
       });
-  
-      // Create messages in conversations
-      for (const recipientId of selectedUsers) {
-        const conversationResponse = await axios.post(`${API_BASE_URL}/conversations`, {
-          participants: [currentUser._id, recipientId]
-        });
-  
-        await axios.post(`${API_BASE_URL}/messages`, {
-          conversationId: conversationResponse.data._id,
-          senderId: currentUser._id,
-          content: `Shared a post: "${sharedPost.caption || 'No caption'}"`,
-          postReference
-        });
-      }
-  
-      setShowShareModal(false);
-      alert("Post shared successfully!");
-    } catch (error) {
-      console.error("Share failed:", error);
-      alert("Failed to share post: " + (error.response?.data?.message || error.message));
     }
-  };
+
+    setShowShareModal(false);
+    alert("Post shared successfully!");
+  } catch (error) {
+    console.error("Share failed:", error);
+    alert("Failed to share post: " + (error.response?.data?.message || error.message));
+  }
+};
 
 // Update getProfilePicUrl for more robust handling
 const getProfilePicUrl = (profilePic) => {
-    console.log("Profile Pic Detailed Debug:", {
-        input: profilePic,
-        type: typeof profilePic,
-        exists: profilePic !== undefined,
-        hasValue: !!profilePic
-    });
-    
-    // If no profile pic is provided, return default avatar
-    if (!profilePic) {
-        console.warn("NO PROFILE PIC - Using default avatar");
-        return "/default-avatar.png";
-    }
-    
-    // Ensure it's a string before processing
-    const picPath = String(profilePic);
-    
-    // If it's already a full URL, return as is
-    if (picPath.startsWith('http')) {
-        console.log("Full URL Profile Pic:", picPath);
-        return picPath;
-    }
-    
-    // Handle various path formats
-    if (picPath.startsWith('/uploads')) {
-        const fullUrl = `http://localhost:5000${picPath}`;
-        console.log("Constructed /uploads URL:", fullUrl);
-        return fullUrl;
-    }
-    
-    if (picPath.startsWith('uploads/')) {
-        const fullUrl = `http://localhost:5000/${picPath}`;
-        console.log("Constructed uploads/ URL:", fullUrl);
-        return fullUrl;
-    }
-    
-    // Fallback to default
-    console.warn("UNRECOGNIZED Profile Pic Format:", picPath);
-    return "/default-avatar.png";
+  // If no profile pic provided, return default avatar
+  if (!profilePic) return "/default-avatar.png";
+  
+  // If it's already a full URL (Cloudinary), return as is
+  if (profilePic.startsWith('http')) return profilePic;
+  
+  // Fallback for any legacy local URLs
+  if (profilePic.startsWith('/uploads')) {
+    return `http://localhost:5000${profilePic}`;
+  }
+  
+  return "/default-avatar.png";
 };
 
   // Add these new functions to your existing component
@@ -1067,12 +1043,15 @@ return (
   {/* Compact Profile Section */}
   <div className="sidebar-profile-card">
     <Link to={`/profile/${currentUser?._id}`} className="sidebar-profile-link">
-      <Avatar
-        src={currentUser?.profilePic ? `http://localhost:5000${currentUser.profilePic}` : "/default-avatar.png"}
-        alt={currentUser?.username}
-        sx={{ width: 56, height: 56 }}
-        className="sidebar-profile-avatar"
-      />
+    <Avatar
+  src={getProfilePicUrl(currentUser?.profilePic)}
+  alt={currentUser?.username}
+  sx={{ width: 56, height: 56 }}
+  className="sidebar-profile-avatar"
+  onError={(e) => {
+    e.target.src = "/default-avatar.png";
+  }}
+/>
       <div className="sidebar-profile-info">
         <Typography variant="subtitle1" className="sidebar-username">
           {currentUser?.username || "Username"}
@@ -1134,7 +1113,12 @@ return (
                     }}
                     style={{ cursor: 'pointer' }} // Add pointer cursor to indicate clickability
                 >
-                    <Avatar src={`http://localhost:5000${user.profilePic}`} />
+                    <Avatar 
+  src={getProfilePicUrl(user.profilePic)}
+  onError={(e) => {
+    e.target.src = "/default-avatar.png";
+  }}
+/>
 
                     <p>{user.username}</p>
                     {currentUser && currentUser._id !== user._id && (
@@ -1173,6 +1157,14 @@ return (
     <span>Notifications</span>
 </div>
 
+<div className="menu-item" onClick={() => navigate("/reels")}>
+    <SlideshowIcon />
+    <span>Reels</span>
+</div>
+<div className="menu-item" onClick={() => navigate("/reels/create")}>
+    <AddCircleOutlineIcon />
+    <span>Create Reel</span>
+</div>
           </div>
 
           {/* Main Feed */}
@@ -1183,9 +1175,12 @@ return (
                   <div className="story-item add-story" onClick={() => setShowStoryUpload(true)}>
                       <div className="story-avatar-container">
                       <Avatar
-                        src={getProfilePicUrl(currentUser?.profilePic)}
-                        className="story-avatar"
-                    />
+  src={getProfilePicUrl(currentUser?.profilePic)}
+  className="story-avatar"
+  onError={(e) => {
+    e.target.src = "/default-avatar.png";
+  }}
+/>
                           <div className="add-story-icon">+</div>
                       </div>
                       <p>Add Story</p></div>
@@ -1204,10 +1199,13 @@ return (
             onClick={() => handleViewStory(userStories)}
         >
             <div className="story-avatar-container has-story">
-                <Avatar
-                    src={story.user?.profilePic ? `http://localhost:5000${story.user.profilePic}` : "/default-avatar.png"}
-                    className="story-avatar"
-                />
+               <Avatar
+  src={getProfilePicUrl(story.user?.profilePic)}
+  className="story-avatar"
+  onError={(e) => {
+    e.target.src = "/default-avatar.png";
+  }}
+/>
                 {/* Add delete button only for current user's stories
                 {story.user?._id === currentUser?._id && (
                     <button 
@@ -1241,11 +1239,14 @@ return (
         <div key={post._id} className="post">
             {/* Post Header */}
             <div className="post-header">
-            <Avatar
-                                        src={post.user?.profilePic ? `http://localhost:5000${post.user.profilePic}` : "/default-avatar.png"}
-                                        onClick={(e) => navigateToProfile(post.user?._id, e)}
-                                        style={{ cursor: 'pointer' }}
-                                    />
+          <Avatar
+  src={getProfilePicUrl(post.user?.profilePic)}
+  onClick={(e) => navigateToProfile(post.user?._id, e)}
+  style={{ cursor: 'pointer' }}
+  onError={(e) => {
+    e.target.src = "/default-avatar.png";
+  }}
+/>
                 <p 
                                         className="post-username"
                                         onClick={(e) => navigateToProfile(post.user?._id, e)}
@@ -1482,12 +1483,15 @@ return (
             {post.comments && post.comments.length > 0 ? (
                 post.comments.map((comment, index) => (
                     <div key={index} className="comment">
-                        <Avatar
-                                                    src={comment.user?.profilePic ? `http://localhost:5000${comment.user.profilePic}` : "/default-avatar.png"}
-                                                    className="comment-avatar"
-                                                    onClick={(e) => navigateToProfile(comment.user?._id, e)}
-                                                    style={{ cursor: 'pointer' }}
-                                                />
+                       <Avatar
+  src={getProfilePicUrl(comment.user?.profilePic)}
+  className="comment-avatar"
+  onClick={(e) => navigateToProfile(comment.user?._id, e)}
+  style={{ cursor: 'pointer' }}
+  onError={(e) => {
+    e.target.src = "/default-avatar.png";
+  }}
+/>
                         <div className="comment-content">
                         <p 
                                                         className="comment-username"

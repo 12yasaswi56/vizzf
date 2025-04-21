@@ -11,6 +11,8 @@ import EditProfile from "./pages/EditProfile";
 import PostDetail from "./pages/PostDetail";
 import Notification from "./pages/Notification";
 import Settings from "./pages/Settings";
+import Reels from './pages/Reels';
+import ReelUpload from './components/ReelUpload';
 const App = () => {
   // const [user, setUser] = useState(null);
   const [user, setUser] = useState(() => {
@@ -49,6 +51,8 @@ const App = () => {
         <Route path="/post/:postId" element={<PostDetail />} />
         <Route path="/notifications" element={<Notification />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/reels" element={<Reels />} />
+        <Route path="/reels/create" element={<ReelUpload />} />
       </Routes>
     </Router>
   );

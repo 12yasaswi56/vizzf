@@ -46,6 +46,8 @@ const Notification = () => {
                     getUnreadNotificationsCount()
                 ]);
                 console.log("Notifications data:", notifications); // Add this line
+                console.log("Profile pic sample:", notifications.length > 0 ? 
+                    notifications[0].senderId?.profilePic : "No notifications");
                 setNotifications(notifications);
                 setUnreadCount(unreadData.unreadCount);
             } catch (error) {
@@ -159,13 +161,14 @@ const Notification = () => {
                         key={notification._id || index} 
                         className={`notification ${notification.isRead ? 'read' : 'unread'}`}
                     >
-                        <Avatar 
-                            src={
-                                notification.senderId?.profilePic || 
-                                notification.senderPic || 
-                                "/default-avatar.png"
-                            } 
-                        />
+            <Avatar 
+  src={
+    notification.senderId?.profilePic ? 
+    `${notification.senderId.profilePic.startsWith('http') ? '' : 'http://localhost:5000'}${notification.senderId.profilePic}` : 
+    "/default-avatar.png"
+  } 
+  alt={notification.senderId?.username || "User"}
+/>
                         <div className="notification-content">
                             <p>
                                 <strong>{notification.senderId?.username || "Someone"}</strong>{" "}
