@@ -1,10 +1,17 @@
+/* Base Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(45deg, #f3f6f9 0%, #e6f0f8 50%, #d9e8f5 100%);
+}
+
 /* Main container styles */
 .home-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f4f7fc;
-  font-family: "Inter", sans-serif;
+  background-color: #99eaea;
 }
 
 /* Top Navbar styles */
@@ -25,19 +32,19 @@
 .custom-image {
   width: 90px;
   height: 70px;
-  border-radius: 10px; /* optional */
+  border-radius: 10px;
 }
-
 
 .logo {
   font-size: 24px;
   font-weight: 700;
   color: #2d4a7f;
 }
+
 .logo-text {
   font-size: 24px;
   font-weight: bold;
-  color: #333;
+  color: #333;
 }
 
 .nav-icons {
@@ -55,14 +62,13 @@
 .main-content {
   display: flex;
   flex: 1;
-  
   margin: 0 auto;
   width: 100%;
 }
 
 /* Sidebar styles */
 .sidebar {
-  width: 250px;
+  width: 400px;
   padding: 30px 0;
   position: sticky;
   top: 60px;
@@ -74,7 +80,7 @@
 
 .sidebartop {
   position: sticky;
-  top: 70px; /* Adjust if navbar height differs */
+  top: 70px;
   background-color: white;
   padding: 16px 20px;
   z-index: 10;
@@ -85,10 +91,12 @@
   display: flex;
   align-items: center;
 }
+
 .navbar-right {
   display: flex;
   align-items: center;
 }
+
 .app-logo {
   width: 40px;
   height: 40px;
@@ -109,6 +117,7 @@
   font-weight: 600;
   font-size: 16px;
 }
+
 .navbar-search {
   flex-grow: 1;
   max-width: 400px;
@@ -139,11 +148,13 @@
   font-size: 14px;
   flex: 1;
 }
+
 .search-icon {
   font-size: 20px;
   color: #555;
   margin-right: 8px;
 }
+
 .sidebar-menu {
   margin-top: 20px;
 }
@@ -167,6 +178,7 @@
 .menu-item svg {
   margin-right: 15px;
 }
+
 /* Feed container styles */
 .feed-container {
   flex: 1;
@@ -178,7 +190,7 @@
 .stories-container {
   display: flex;
   overflow-x: auto;
-  width : 800px;
+  width: 1100px;
   background-color: white;
   border: 1px solid #dbdbdb;
   border-radius: 8px;
@@ -187,7 +199,6 @@
   padding: 10px 10px;
   margin-left: 10px;
   margin-right: 10px;
-
 }
 
 .stories-container::-webkit-scrollbar {
@@ -245,17 +256,18 @@
   max-width: 80px;
   text-align: center;
 }
+
 /* Posts container styles */
 .posts-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  width : 800px
+  width: 1100px;
 }
 
 .post {
-  width: 650px;
+  width: 850px;
   background: #fff;
   border-radius: 10px;
   padding: 15px;
@@ -328,7 +340,6 @@
 .action-icon {
   margin-right: 6px;
 }
-
 
 .comment-input {
   display: flex;
@@ -470,7 +481,6 @@
   margin-bottom: 16px;
 }
 
-/* New file input styling */
 .file-input-container {
   margin-bottom: 16px;
   display: flex;
@@ -507,7 +517,6 @@
   color: #555;
 }
 
-/* Existing styles */
 .error-message {
   color: #ed4956;
   margin-bottom: 16px;
@@ -541,88 +550,15 @@
   color: #262626;
 }
 
-.error-message {
-  color: #e74c3c;
-  font-size: 14px;
-  margin: 5px 0;
-}
-
-.loading, .no-posts {
-  text-align: center;
-  padding: 20px;
-  color: #777;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .main-content {
-    flex-direction: column;
-  }
-  
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    top: 0;
-    border-right: none;
-    border-bottom: 1px solid #dbdbdb;
-    padding: 15px 0;
-  }
-  
-  .feed-container {
-    max-width: 100%;
-  }
-  
-  .sidebar-menu {
-    display: flex;
-    overflow-x: auto;
-    margin-top: 0;
-  }
-  
-  .menu-item {
-    flex-direction: column;
-    padding: 10px;
-  }
-  
-  .menu-item svg {
-    margin-right: 0;
-    margin-bottom: 5px;
-  }
-  
-  .story-avatar {
-    width: 56px !important;
-    height: 56px !important;
-  }
-}
-
-
-
-
-/* Home.css */
-
-/* ... (your existing styles) ... */
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Ensure it's on top */
-}
-
+/* Search Results Modal */
 .search-results-modal {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 400px; /* Adjust width as needed */
-  max-height: 80vh; /* Limit height to 80% of viewport height */
-  overflow-y: auto; /* Enable scrolling if content overflows */
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .search-results-modal h3 {
@@ -641,12 +577,12 @@
   border-bottom: none;
 }
 
-.search-result-item .MuiAvatar-root { /* Targeting Material-UI Avatar */
+.search-result-item .MuiAvatar-root {
   margin-right: 10px;
 }
 
 .search-result-item p {
-  flex-grow: 1; /* Allow username to take available space */
+  flex-grow: 1;
   margin: 0;
 }
 
@@ -655,7 +591,7 @@
   padding: 10px 15px;
   border: none;
   border-radius: 4px;
-  background-color: #007bff; /* Example button color */
+  background-color: #007bff;
   color: white;
   cursor: pointer;
 }
@@ -664,13 +600,11 @@
   background-color: #0056b3;
 }
 
-.search-result-item .MuiButton-root { /* Targeting Material-UI Button */
+.search-result-item .MuiButton-root {
   margin-left: 10px;
 }
 
-
-/* Add these styles to your existing Home.css */
-
+/* Post Paper Info */
 .post-paper-info {
   padding: 10px 15px;
   background-color: #f5f9ff;
@@ -733,20 +667,7 @@
   text-decoration: none;
 }
 
-/* Share Modal Styling */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
+/* Share Modal */
 .modal {
   background-color: white;
   padding: 20px;
@@ -808,27 +729,8 @@
 .modal button:hover {
   opacity: 0.9;
 }
-/* .story-item {
-    position: relative;
-}
 
-.delete-story-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: rgba(255, 0, 0, 0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-} */
-
+/* Tagged Users */
 .tagged-users-section {
   margin-top: 10px;
 }
@@ -869,9 +771,7 @@
   cursor: pointer;
 }
 
-
-/* Add these styles to your Home.css file */
-
+/* Post Header Actions */
 .post-header {
   display: flex;
   align-items: center;
@@ -900,13 +800,11 @@
   color: #000;
 }
 
-/* Style the Material-UI menu to match Instagram's style */
 .MuiMenuItem-root {
   font-size: 14px;
   min-height: 40px;
 }
 
-/* Optional: Add a saved indicator in the post */
 .saved-indicator {
   position: absolute;
   bottom: 10px;
@@ -914,7 +812,7 @@
   color: #3897f0;
 }
 
-
+/* Shared Post Preview */
 .shared-post-preview {
   margin-top: 8px;
   border: 1px solid #ddd;
@@ -946,11 +844,7 @@
   color: #666;
 }
 
-
-
-
-
-/* File preview carousel */
+/* File Preview Carousel */
 .file-preview-carousel {
   margin: 15px 0;
   border: 1px solid #ddd;
@@ -1047,7 +941,7 @@
   margin-left: 10px;
 }
 
-/* Post carousel styles */
+/* Post Carousel */
 .post-carousel {
   position: relative;
   width: 100%;
@@ -1088,6 +982,8 @@
 .dot.active {
   background-color: #0095f6;
 }
+
+/* Location Input */
 .location-input {
   margin: 15px 0;
   display: flex;
@@ -1138,103 +1034,6 @@
 
 .view-on-map:hover {
   text-decoration: underline;
-}
-
-/* Location Input Styles */
-.location-input {
-  margin: 15px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.location-input input {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 100%;
-  font-size: 14px;
-}
-
-.location-input button {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.location-input button:hover {
-  background-color: #e0e0e0;
-}
-
-/* Post Location Display Styles */
-.post-location {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  color: #262626;
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-.location-icon {
-  margin-right: 8px;
-  font-size: 16px;
-}
-
-.view-on-map {
-  color: #0095f6;
-  text-decoration: none;
-  margin-left: 8px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.view-on-map:hover {
-  text-decoration: underline;
-}
-
-/* Selected Location Indicator */
-.selected-location {
-  display: flex;
-  align-items: center;
-  background-color: #f8f8f8;
-  padding: 6px 12px;
-  border-radius: 4px;
-  margin-top: 8px;
-  font-size: 14px;
-}
-
-.selected-location button {
-  background: none;
-  border: none;
-  color: #ed4956;
-  margin-left: 8px;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* Location in Upload Modal */
-.upload-modal .location-input {
-  margin-bottom: 16px;
-}
-
-.upload-modal .location-input input {
-  margin-bottom: 8px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .post-location {
-    padding: 8px 12px;
-  }
-  
-  .view-on-map {
-    font-size: 12px;
-  }
 }
 
 /* Sidebar Profile Card */
@@ -1311,12 +1110,6 @@
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-.username {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-}
-
 .MuiMenu-paper {
   min-width: 180px !important;
   border-radius: 8px !important;
@@ -1327,8 +1120,6 @@
   padding: 8px 16px !important;
 }
 
-
-/* Add to your Home.css */
 .avatar-fallback {
   background-color: #ccc;
   display: flex;
@@ -1338,4 +1129,350 @@
   font-weight: bold;
 }
 
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .feed-container {
+    max-width: 100%;
+  }
+  
+  .stories-container,
+  .posts-container {
+    width: 100%;
+  }
+  
+  .post {
+    width: 90%;
+  }
+}
 
+@media (max-width: 992px) {
+  .sidebar {
+    width: 300px;
+  }
+  
+  .post {
+    width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+    border-right: none;
+    border-bottom: 1px solid #dbdbdb;
+    padding: 15px 0;
+  }
+  
+  .feed-container {
+    max-width: 100%;
+  }
+  
+  .sidebar-menu {
+    display: flex;
+    overflow-x: auto;
+    margin-top: 0;
+  }
+  
+  .menu-item {
+    flex-direction: column;
+    padding: 10px;
+    min-width: 80px;
+  }
+  
+  .menu-item svg {
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+  
+  .story-avatar {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  
+  .post {
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .top-navbar {
+    padding: 12px 15px;
+  }
+  
+  .nav-icon {
+    margin-left: 15px;
+  }
+  
+  .custom-image {
+    width: 70px;
+    height: 50px;
+  }
+  
+  .navbar-search {
+    margin: 0 10px;
+  }
+  
+  .search-wrapper {
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .top-navbar {
+    padding: 10px;
+    height: 50px;
+  }
+  
+  .logo-text {
+    font-size: 20px;
+  }
+  
+  .custom-image {
+    width: 60px;
+    height: 40px;
+  }
+  
+  .nav-icon {
+    margin-left: 12px;
+    font-size: 20px;
+  }
+  
+  .story-avatar {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  
+  .story-item p {
+    font-size: 10px;
+  }
+  
+  .post-header p {
+    font-size: 14px;
+  }
+  
+  .post-caption {
+    font-size: 13px;
+  }
+  
+  .comment-input input {
+    font-size: 13px;
+  }
+  
+  .upload-modal {
+    padding: 15px;
+  }
+  
+  .modal {
+    padding: 15px;
+  }
+  
+  .sidebar-profile-card {
+    padding: 12px;
+  }
+  
+  .sidebar-profile-stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .top-navbar {
+    padding: 8px;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .custom-image {
+    width: 50px;
+    height: 35px;
+  }
+  
+  .nav-icon {
+    margin-left: 10px;
+    font-size: 18px;
+  }
+  
+  .story-avatar {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .story-item {
+    min-width: 60px;
+    margin-right: 10px;
+  }
+  
+  .post-actions {
+    flex-wrap: wrap;
+  }
+  
+  .action-button {
+    min-width: 33%;
+    padding: 6px;
+    font-size: 12px;
+  }
+  
+  .comment-input {
+    padding: 8px;
+  }
+  
+  .comment-avatar {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+
+/* Mobile Menu Styles */
+.mobile-menu-button {
+  display: none;
+  margin-right: 10px;
+  color: #333;
+}
+
+.mobile-drawer {
+  z-index: 1300;
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+}
+
+.mobile-menu-content {
+  padding: 16px;
+}
+
+.mobile-profile-card {
+  padding: 16px;
+  margin-bottom: 20px;
+  background: #f8f8f8;
+  border-radius: 12px;
+}
+
+.sidebar-profile-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 12px;
+}
+
+.sidebar-profile-info {
+  margin-left: 12px;
+}
+
+.sidebar-username {
+  font-weight: 600;
+  margin: 0;
+  font-size: 16px;
+}
+
+.sidebar-full-name {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+.sidebar-profile-stats {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.sidebar-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  flex: 1;
+}
+
+.sidebar-stat-value {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.sidebar-stat-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.mobile-menu-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-items .menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.mobile-menu-items .menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.mobile-menu-items .menu-icon {
+  margin-right: 16px;
+  font-size: 24px;
+  color: #333;
+}
+
+.mobile-menu-items .menu-item span {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .feed-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .stories-container {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .posts-container {
+    width: 100%;
+  }
+
+  .post {
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #eee;
+  }
+}

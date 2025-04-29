@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { CometChat } from "@cometchat-pro/chat";
 import { COMETCHAT_CONFIG } from "./utils/config";
 
+
 import Login from "./pages/Login";
+import MainPage from "./pages/MainPage";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat"
 import Profile from "./pages/Profile";
@@ -13,6 +15,7 @@ import Notification from "./pages/Notification";
 import Settings from "./pages/Settings";
 import Reels from './pages/Reels';
 import ReelUpload from './components/ReelUpload';
+import JobSearchPage from './pages/JobSearchPage';
 const App = () => {
   // const [user, setUser] = useState(null);
   const [user, setUser] = useState(() => {
@@ -43,7 +46,8 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+      <Route path="/" element={<MainPage />} />
+        <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/profile/:userId" element={<Profile />} />
@@ -53,6 +57,7 @@ const App = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/reels" element={<Reels />} />
         <Route path="/reels/create" element={<ReelUpload />} />
+        <Route path="/jobs" element={<JobSearchPage />} />
       </Routes>
     </Router>
   );

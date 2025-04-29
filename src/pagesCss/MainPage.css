@@ -1,0 +1,201 @@
+.main-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: linear-gradient(120deg, #2b5876 0%, #4e4376 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Abstract background elements */
+.main-page-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 25%),
+    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 25%);
+  z-index: 0;
+}
+
+/* Floating geometric shapes */
+.main-page-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.1) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 60px 60px;
+  background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
+  opacity: 0.5;
+  z-index: 0;
+  animation: backgroundShift 30s linear infinite;
+}
+
+@keyframes backgroundShift {
+  0% {
+    background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
+  }
+  100% {
+    background-position: 60px 60px, 60px 90px, 90px 30px, 30px 60px;
+  }
+}
+
+.main-page-header {
+  text-align: center;
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 1;
+}
+
+.main-page-header h1 {
+  font-size: 3rem;
+  color: #ffffff;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.main-page-header p {
+  font-size: 1.4rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+}
+
+/* Updated card layout container */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Single row for all cards */
+.cards-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Vertical rectangle cards */
+.main-card {
+  cursor: pointer;
+  height: 320px;
+  width: 100%;
+  max-width: 250px;
+  color: white !important;
+  border-radius: 12px !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: cardAppear 0.6s forwards;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Staggered animation delay for cards */
+.cards-row .main-card:nth-child(1) { animation-delay: 0.1s; }
+.cards-row .main-card:nth-child(2) { animation-delay: 0.2s; }
+.cards-row .main-card:nth-child(3) { animation-delay: 0.3s; }
+.cards-row .main-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes cardAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.main-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhance card content styling */
+.main-card .MuiCardContent-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.main-card .MuiTypography-h5 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.main-card .MuiTypography-body2 {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: auto;
+  flex-grow: 1;
+}
+
+.main-card .MuiButton-root {
+  align-self: center;
+  padding: 10px 32px;
+  margin-top: 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  text-transform: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  width: 80%;
+}
+
+.main-card .MuiButton-root:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Responsive layout for tablets and mobile */
+@media (max-width: 1100px) {
+  .cards-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .main-card {
+    max-width: 240px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cards-row {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .main-card {
+    max-width: 280px;
+    margin-bottom: 20px;
+  }
+  
+  .main-page-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .main-page-header p {
+    font-size: 1.1rem;
+  }
+}

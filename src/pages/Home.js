@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../pagesCss/Home.css";
-import { Avatar, Button } from "@mui/material"; // Import Button here
+import { Avatar, Button,Drawer, IconButton,
+  
+  
+  
+    } from "@mui/material";
+    import CloseIcon from "@mui/icons-material/Close"; // Import Button here
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import SendIcon from "@mui/icons-material/Send";
@@ -14,7 +19,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ExploreIcon from "@mui/icons-material/Explore";
 import StoryViewer from "../components/StoryViewer";
 import StoryUpload from "../components/StoryUpload";
-
+import MenuIcon from "@mui/icons-material/Menu";
 // Add these imports
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -101,6 +106,7 @@ const [newPost, setNewPost] = useState({
     currentFileIndex: 0, // For tracking which file is being displayed
     location: null // Add location state
 });
+const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     // Fetch user details from localStorage when component mounts
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -674,11 +680,14 @@ const getProfilePicUrl = (profilePic) => {
   if (!profilePic) return "/default-avatar.png";
   
   // If it's already a full URL (Cloudinary), return as is
-  if (profilePic.startsWith('http')) return profilePic;
+  if (profilePic.startsWith('http')) {
+    // Ensure Cloudinary URLs use HTTPS
+    return profilePic.replace('http://', 'https://');
+  }
   
   // Fallback for any legacy local URLs
   if (profilePic.startsWith('/uploads')) {
-    return `http://localhost:5000${profilePic}`;
+    return `${API_BASE_URL}${profilePic}`;
   }
   
   return "/default-avatar.png";
@@ -936,6 +945,13 @@ return (
       {/* Top Navbar */}
 <div className="top-navbar">
   <div className="navbar-left">
+  <IconButton 
+            className="mobile-menu-button" 
+            onClick={() => setMobileMenuOpen(true)}
+            sx={{ display: { xs: 'block', md: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
     <img
       src="WhatsApp Image 2025-03-14 at 13.33.08_21efd31a.jpg"
       alt="App Logo"
@@ -1034,7 +1050,136 @@ return (
     </div>
   </div>
 </div>
+ {/* Mobile Drawer Menu */}
+ <Drawer
+        anchor="left"
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        className="mobile-drawer"
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: 280,
+            boxSizing: 'border-box',
+            backgroundColor: '#fff',
+          },
+        }}
+      >
+        <div className="mobile-menu-header">
+          <IconButton 
+            onClick={() => setMobileMenuOpen(false)}
+            sx={{ margin: '10px' }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </div>
+        <div className="mobile-menu-content">
+          {/* Profile Section */}
+          <div className="sidebar-profile-card mobile-profile-card">
+            <Link 
+              to={`/profile/${currentUser?._id}`} 
+              className="sidebar-profile-link"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Avatar
+                src={getProfilePicUrl(currentUser?.profilePic)}
+                alt={currentUser?.username}
+                sx={{ width: 56, height: 56 }}
+                className="sidebar-profile-avatar"
+                onError={(e) => {
+                  e.target.src = "/default-avatar.png";
+                }}
+              />
+              <div className="sidebar-profile-info">
+                <Typography variant="subtitle1" className="sidebar-username">
+                  {currentUser?.username || "Username"}
+                </Typography>
+                <Typography variant="body2" className="sidebar-full-name">
+                  {currentUser?.fullName || "Full Name"}
+                </Typography>
+              </div>
+            </Link>
+            
+            <div className="sidebar-profile-stats">
+              <div className="sidebar-stat" onClick={handleOpenFollowersModal}>
+                <span className="sidebar-stat-value">{profileStats.postsCount}</span>
+                <span className="sidebar-stat-label">Posts</span>
+              </div>
+              <div className="sidebar-stat" onClick={handleOpenFollowersModal}>
+                <span className="sidebar-stat-value">{profileStats.followersCount}</span>
+                <span className="sidebar-stat-label">Followers</span>
+              </div>
+              <div className="sidebar-stat" onClick={handleOpenFollowingModal}>
+                <span className="sidebar-stat-value">{profileStats.followingCount}</span>
+                <span className="sidebar-stat-label">Following</span>
+              </div>
+            </div>
+          </div>
 
+          {/* Menu Items */}
+          <div className="mobile-menu-items">
+            <div 
+              className="menu-item" 
+              onClick={() => { 
+                navigate("/"); 
+                setMobileMenuOpen(false); 
+              }}
+            >
+              <HomeIcon className="menu-icon" />
+              <span>Home</span>
+            </div>
+            <div 
+              className="menu-item" 
+              onClick={() => { 
+                navigate("/chat"); 
+                setMobileMenuOpen(false); 
+              }}
+            >
+              <ChatIcon className="menu-icon" />
+              <span>Messages</span>
+            </div>
+            <div 
+              className="menu-item" 
+              onClick={() => { 
+                setShowUpload(true); 
+                setMobileMenuOpen(false); 
+              }}
+            >
+              <AddCircleOutlineIcon className="menu-icon" />
+              <span>Create Post</span>
+            </div>
+            <div 
+              className="menu-item" 
+              onClick={() => { 
+                navigate("/notifications"); 
+                setMobileMenuOpen(false); 
+              }}
+            >
+              <NotificationsIcon className="menu-icon" />
+              <span>Notifications</span>
+            </div>
+            <div 
+              className="menu-item" 
+              onClick={() => { 
+                navigate("/reels"); 
+                setMobileMenuOpen(false); 
+              }}
+            >
+              <SlideshowIcon className="menu-icon" />
+              <span>Reels</span>
+            </div>
+            <div 
+              className="menu-item" 
+              onClick={() => { 
+                navigate("/reels/create"); 
+                setMobileMenuOpen(false); 
+              }}
+            >
+              <AddCircleOutlineIcon className="menu-icon" />
+              <span>Create Reel</span>
+            </div>
+          </div>
+        </div>
+      </Drawer>
       {/* Main Content */}
       <div className="main-content">
           {/* Left Sidebar */}
@@ -1079,10 +1224,14 @@ return (
   </div>
 
               <div className="sidebar-menu">
-                  <div className="menu-item active">
+                  {/* <div className="menu-item active">
                       <HomeIcon />
                       <span>Home</span>
-                  </div>
+                  </div> */}
+                  <div className="menu-item" onClick={() => navigate("/")}>
+                  <HomeIcon />
+                  <span>Home</span>
+              </div>
                   {/* <div className="menu-item search-item">
                       <SearchIcon />
                       <input
@@ -1169,6 +1318,7 @@ return (
 
           {/* Main Feed */}
           <div className="feed-container">
+            
               {/* Stories Section */}
               <div className="stories-container">
                   {/* Add Story Button */}
@@ -1510,7 +1660,10 @@ return (
         </div>
     </div>
 ))}
+ {/* NEW: Right Sidebar - Add this right after main-feed */}
+
 </div>
+
 </div>
 </div>
 
@@ -1763,7 +1916,9 @@ onDeleteStory={handleDeleteStory}
 onViewersClick={() => fetchStoryViewers(activeStory._id)}
 />
 )}
+ 
 </div>
+
 );
 };
 

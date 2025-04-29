@@ -1,0 +1,306 @@
+/* Job Search Page - Main Layout */
+.job-search-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .job-search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .job-search-header h1 {
+    color: #333;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .back-button {
+    background-color: #424242 !important;
+    text-transform: none !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .job-search-content {
+    background-color: transparent;
+  }
+  
+  /* Job Search Container */
+  .job-search-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .job-search-container h3 {
+    margin-bottom: 24px;
+    font-size: 22px;
+    color: #212121;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  
+  /* Form Elements */
+  .job-search-container .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .job-search-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #424242;
+    font-weight: 500;
+  }
+  
+  .job-search-container input,
+  .job-search-container select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    background-color: #fafafa;
+  }
+  
+  .job-search-container input:focus,
+  .job-search-container select:focus {
+    outline: none;
+    border-color: #757575;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .job-search-container button {
+    width: 100%;
+    padding: 14px;
+    background-color: #424242;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    margin-top: 10px;
+  }
+  
+  .job-search-container button:hover {
+    background-color: #212121;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .job-search-container button:active {
+    transform: translateY(1px);
+    box-shadow: none;
+  }
+  
+  .job-search-container button:disabled {
+    background-color: #bdbdbd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Job Results */
+  .job-results {
+    margin-top: 30px;
+  }
+  
+  .results-count {
+    font-size: 16px;
+    color: #424242;
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+  
+  .job-card {
+    background-color: white;
+    border: 1px solid #eeeeee;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 18px;
+    position: relative;
+    transition: all 0.25s ease;
+  }
+  
+  .job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #e0e0e0;
+  }
+  
+  .job-card h4 {
+    font-size: 18px;
+    margin-top: 5px;
+    margin-bottom: 12px;
+    color: #121212;
+    padding-right: 75px; /* Make room for source tag */
+    line-height: 1.4;
+  }
+  
+  .company-location {
+    font-size: 15px;
+    color: #616161;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .salary {
+    font-size: 15px;
+    margin-bottom: 20px;
+    color: #00796b;
+    font-weight: 500;
+  }
+  
+  .job-card a {
+    display: inline-block;
+    padding: 10px 18px;
+    background-color: #424242;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .job-card a:hover {
+    background-color: #212121;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .job-source {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background-color: #757575;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  
+  .error-message {
+    color: #d32f2f;
+    font-size: 15px;
+    margin-top: 14px;
+    background-color: #ffebee;
+    padding: 14px;
+    border-radius: 6px;
+    border-left: 4px solid #d32f2f;
+  }
+  
+  /* Responsive Design */
+  @media (min-width: 768px) {
+    .job-search-container form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    
+    .job-search-container .form-group:last-of-type,
+    .job-search-container button {
+      grid-column: span 2;
+    }
+    
+    .job-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 22px;
+    }
+    
+    .results-count {
+      grid-column: 1 / -1;
+    }
+    
+    .job-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+    }
+    
+    .job-card a {
+      margin-top: auto;
+      align-self: flex-start;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .job-search-header h1 {
+      font-size: 24px;
+    }
+    
+    .job-search-container {
+      padding: 20px;
+    }
+    
+    .job-card {
+      padding: 18px;
+    }
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #bdbdbd;
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9e9e9e;
+  }
+  
+  /* Additional Enhancements */
+  ::placeholder {
+    color: #9e9e9e;
+    opacity: 0.7;
+  }
+  
+  input, select, button {
+    font-family: inherit;
+  }
+  
+  /* Add subtle dividers between job cards for better visual separation */
+  .job-card {
+    position: relative;
+  }
+  
+  .job-card::after {
+    content: "";
+    position: absolute;
+    bottom: -9px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background-color: #f5f5f5;
+  }
+  
+  .job-card:last-child::after {
+    display: none;
+  }
