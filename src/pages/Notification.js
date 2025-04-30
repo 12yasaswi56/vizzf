@@ -164,7 +164,7 @@ const Notification = () => {
             <Avatar 
   src={
     notification.senderId?.profilePic ? 
-    `${notification.senderId.profilePic.startsWith('http') ? '' : 'https://back-nipj.onrender.com'}${notification.senderId.profilePic}` : 
+    `${notification.senderId.profilePic.startsWith('http') ? '' : 'https://back-nipj.onrender.com/'}${notification.senderId.profilePic}` : 
     "/default-avatar.png"
   } 
   alt={notification.senderId?.username || "User"}

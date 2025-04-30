@@ -19,7 +19,7 @@ const Call = ({ callType, conversationId, currentUser, otherUser, onEndCall }) =
 
   useEffect(() => {
     // Initialize socket connection
-    socketRef.current = io('https://back-nipj.onrender.com');
+    socketRef.current = io('https://back-nipj.onrender.com/');
 
     // Get user media
     navigator.mediaDevices.getUserMedia({

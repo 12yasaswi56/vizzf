@@ -13,7 +13,7 @@ import EmojiPicker from 'emoji-picker-react';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import { FaPhone, FaVideo } from 'react-icons/fa';
 import Call from '../components/Call';
-const API_BASE_URL = "https://back-nipj.onrender.com/api";
+const API_BASE_URL = "https://back-nipj.onrender.com//api";
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);

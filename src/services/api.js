@@ -2,7 +2,7 @@
 
 // export const loginUser = async (credentials) => {
 //   try {
-//     const res = await axios.post("https://back-nipj.onrender.comapi/auth/login", credentials);
+//     const res = await axios.post("https://back-nipj.onrender.com/api/auth/login", credentials);
 //     return res;
 //   } catch (error) {
 //     console.error("API Login Error:", error.response ? error.response.data : error.message);
@@ -12,7 +12,7 @@
 
 // export const signupUser = async (userData) => {
 //   try {
-//     const res = await axios.post("https://back-nipj.onrender.comapi/auth/signup", userData);
+//     const res = await axios.post("https://back-nipj.onrender.com/api/auth/signup", userData);
 //     return res;
 //   } catch (error) {
 //     console.error("API Signup Error:", error.response ? error.response.data : error.message);
@@ -25,7 +25,7 @@
 
 import axios from "axios";
 
-const API_URL = "https://back-nipj.onrender.comapi/auth"; // Adjust based on backend config
+const API_URL = "https://back-nipj.onrender.com/api/auth"; // Adjust based on backend config
 
 export const loginUser = async (credentials) => {
   try {

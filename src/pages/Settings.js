@@ -22,7 +22,7 @@ import LockResetIcon from '@mui/icons-material/LockReset';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-const API_BASE_URL = "https://back-nipj.onrender.comapi";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const Settings = () => {
   const navigate = useNavigate();

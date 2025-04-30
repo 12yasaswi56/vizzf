@@ -15,7 +15,7 @@ import {
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
-const API_BASE_URL = "https://back-nipj.onrender.comapi";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const PostDetail = () => {
   const { postId } = useParams();
@@ -68,7 +68,7 @@ const PostDetail = () => {
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
       return imageUrl;
     }
-    return `https://back-nipj.onrender.com${imageUrl}`;
+    return `https://back-nipj.onrender.com/${imageUrl}`;
   };
 
   const handleNext = () => {

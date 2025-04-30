@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Box, Avatar, Skeleton, Typography } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
-const API_BASE_URL = "https://back-nipj.onrender.comapi";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const StoriesRow = ({ userId, currentUserId, isFeed = false, onAddStory, onViewStory }) => {
   const [stories, setStories] = useState([]);

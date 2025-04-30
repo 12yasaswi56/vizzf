@@ -32,7 +32,7 @@ const Reels = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('auth-token');
-      const response = await axios.get('https://back-nipj.onrender.comapi/reels', {
+      const response = await axios.get('https://back-nipj.onrender.com/api/reels', {
         headers: {
           'x-auth-token': token
         }

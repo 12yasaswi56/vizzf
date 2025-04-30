@@ -48,7 +48,7 @@ import SlideshowIcon from "@mui/icons-material/Slideshow";
 
 
 // Define API base URL
-const API_BASE_URL = "https://back-nipj.onrender.com/api";
+const API_BASE_URL = "https://back-nipj.onrender.com//api";
 
 const Home = () => {
     // ... (your existing state)
@@ -751,7 +751,7 @@ const handleTagUsers = async () => {
                   profilePic: user.profilePic 
                     ? (user.profilePic.startsWith('http') 
                         ? user.profilePic 
-                        : `https://back-nipj.onrender.com${user.profilePic}`)
+                        : `https://back-nipj.onrender.com/${user.profilePic}`)
                     : "/default-avatar.png"
                 }))
               }
@@ -1613,7 +1613,7 @@ return (
         {/* Comment input */}
         <div className="comment-input">
         <Avatar
-                                        src={currentUser?.profilePic ? `https://back-nipj.onrender.com${currentUser.profilePic}` : "/default-avatar.png"}
+                                        src={currentUser?.profilePic ? `https://back-nipj.onrender.com/${currentUser.profilePic}` : "/default-avatar.png"}
                                         className="comment-avatar"
                                         onClick={(e) => navigateToProfile(currentUser?._id, e)}
                                         style={{ cursor: 'pointer' }}

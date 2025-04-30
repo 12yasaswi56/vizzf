@@ -13,7 +13,7 @@
 //     formData.append("file", file);
 
 //     try {
-//         await axios.post("https://back-nipj.onrender.comapi/posts/upload", formData);
+//         await axios.post("https://back-nipj.onrender.com/api/posts/upload", formData);
 
 //       alert("Post uploaded successfully!");
 //     } catch (error) {
@@ -103,7 +103,7 @@
 //     formData.append("file", file);
 
 //     try {
-//       const response = await axios.post("https://back-nipj.onrender.comapi/posts/upload", formData, {
+//       const response = await axios.post("https://back-nipj.onrender.com/api/posts/upload", formData, {
 //         headers: { "Content-Type": "multipart/form-data" },
 //       });
 
@@ -265,7 +265,7 @@ const PostUpload = () => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post("https://back-nipj.onrender.comapi/posts/upload", formData, {
+      const response = await axios.post("https://back-nipj.onrender.com/api/posts/upload", formData, {
         headers: { 
           "Content-Type": "multipart/form-data",
           "Authorization": `Bearer ${localStorage.getItem("token")}`

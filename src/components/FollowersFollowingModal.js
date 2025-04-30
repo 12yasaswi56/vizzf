@@ -16,7 +16,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
-const API_BASE_URL = "https://back-nipj.onrender.comapi";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const FollowersFollowingModal = ({ 
   open, 
