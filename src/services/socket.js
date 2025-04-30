@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 // Create a socket instance
-const socket = io('http://localhost:5000', {
+const socket = io('https://back-nipj.onrender.com', {
   withCredentials: true,
   autoConnect: false,
   transports: ["websocket"]

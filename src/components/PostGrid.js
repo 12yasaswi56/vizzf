@@ -20,7 +20,7 @@
 //             <CardMedia
 //               component="img"
 //               height="200"
-//               image={`http://localhost:5000${post.image}`} // Ensure full URL
+//               image={`https://back-nipj.onrender.com${post.image}`} // Ensure full URL
 //               alt="User Post"
 //             />
 //           </Card>
@@ -64,7 +64,7 @@ const PostGrid = ({ posts }) => {
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
       return imageUrl;
     }
-    return `http://localhost:5000${imageUrl}`;
+    return `https://back-nipj.onrender.com${imageUrl}`;
   };
 
   return (

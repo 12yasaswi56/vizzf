@@ -22,7 +22,7 @@
 //       try {
 //         const token = localStorage.getItem('auth-token');
 //         if (token) {
-//           await axios.post(`http://localhost:5000/api/stories/${story._id}/view`, {}, {
+//           await axios.post(`https://back-nipj.onrender.comapi/stories/${story._id}/view`, {}, {
 //             headers: { 'x-auth-token': token }
 //           });
 //         }
@@ -106,7 +106,7 @@
 //     }
     
 //     // Otherwise, construct the full URL
-//     return `http://localhost:5000${path}`;
+//     return `https://back-nipj.onrender.com${path}`;
 //   };
   
 //   return (
@@ -221,7 +221,7 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory })
       try {
         const token = localStorage.getItem('auth-token');
         if (token) {
-          await axios.post(`http://localhost:5000/api/stories/${story._id}/view`, {}, {
+          await axios.post(`https://back-nipj.onrender.comapi/stories/${story._id}/view`, {}, {
             headers: { 'x-auth-token': token }
           });
         }
@@ -241,7 +241,7 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory })
         const user = JSON.parse(localStorage.getItem('user'));
         
         if (token && story.user?._id === user?._id) {
-          const response = await axios.get(`http://localhost:5000/api/stories/${story._id}/viewers`, {
+          const response = await axios.get(`https://back-nipj.onrender.comapi/stories/${story._id}/viewers`, {
             headers: { 'x-auth-token': token }
           });
           setViewers(response.data.viewers);
@@ -334,7 +334,7 @@ const StoryViewer = ({ story, onClose, stories, setActiveStory ,onDeleteStory })
  const getFullMediaUrl = (path) => {
   if (!path) return "/default-avatar.png";
   if (path.startsWith('http')) return path;
-  return `http://localhost:5000${path}`;
+  return `https://back-nipj.onrender.com${path}`;
 };
   
   return (

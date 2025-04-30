@@ -6,7 +6,7 @@
 // import '../pagesCss/StoryUpload.css';
 
 // // API base URL
-// const API_BASE_URL = "http://localhost:5000/api";
+// const API_BASE_URL = "https://back-nipj.onrender.comapi";
 
 // const StoryUpload = ({ onClose, onSuccess, currentUser }) => {
 //   const [caption, setCaption] = useState('');
@@ -84,8 +84,8 @@
 //     if (!profilePic) return "/default-avatar.png";
 //     const picPath = String(profilePic);
 //     if (picPath.startsWith('http')) return picPath;
-//     if (picPath.startsWith('/uploads')) return `http://localhost:5000${picPath}`;
-//     if (picPath.startsWith('uploads/')) return `http://localhost:5000/${picPath}`;
+//     if (picPath.startsWith('/uploads')) return `https://back-nipj.onrender.com${picPath}`;
+//     if (picPath.startsWith('uploads/')) return `https://back-nipj.onrender.com${picPath}`;
 //     return "/default-avatar.png";
 // };
 //   return (
@@ -189,7 +189,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import '../pagesCss/StoryUpload.css';
 
 // API base URL
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const StoryUpload = ({ onClose, onSuccess, currentUser }) => {
   const [caption, setCaption] = useState('');
@@ -277,8 +277,8 @@ const StoryUpload = ({ onClose, onSuccess, currentUser }) => {
     if (picPath.startsWith('http')) return picPath;
     
     // For legacy URLs (if any still in your database)
-    if (picPath.startsWith('/uploads')) return `http://localhost:5000${picPath}`;
-    if (picPath.startsWith('uploads/')) return `http://localhost:5000/${picPath}`;
+    if (picPath.startsWith('/uploads')) return `https://back-nipj.onrender.com${picPath}`;
+    if (picPath.startsWith('uploads/')) return `https://back-nipj.onrender.com${picPath}`;
     
     return "/default-avatar.png";
   };

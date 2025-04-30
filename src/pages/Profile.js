@@ -8,7 +8,7 @@
 // import FollowersFollowingModal from '../components/FollowersFollowingModal'; // Import the modal component
 
 // // API base URL
-// const API_BASE_URL = "http://localhost:5000/api";
+// const API_BASE_URL = "https://back-nipj.onrender.comapi";
 
 // const Profile = () => {
 //   const { userId } = useParams();
@@ -177,7 +177,7 @@
 //     <div className="profile-container">
 //       <div className="profile-header">
 //         <Avatar 
-//           src={profileData.profilePic ? `http://localhost:5000${profileData.profilePic}` : ''} 
+//           src={profileData.profilePic ? `https://back-nipj.onrender.com${profileData.profilePic}` : ''} 
 //           alt={profileData.username} 
 //           className="profile-avatar"
 //           sx={{ width: 120, height: 120 }}
@@ -319,7 +319,7 @@ import socket from '../services/socket';
 import FollowersFollowingModal from '../components/FollowersFollowingModal'; // Import the modal component
 
 // API base URL
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://back-nipj.onrender.comapi";
 
 const Profile = () => {
   const { userId } = useParams();

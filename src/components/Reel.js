@@ -48,14 +48,14 @@ const Reel = ({ reel, currentUser, onLike, onComment }) => {
     try {
       const token = localStorage.getItem('auth-token');
       if (isLiked) {
-        await axios.post(`http://localhost:5000/api/reels/${reel._id}/unlike`, null, {
+        await axios.post(`https://back-nipj.onrender.comapi/reels/${reel._id}/unlike`, null, {
           headers: {
             'x-auth-token': token
           }
         });
         setLikes(likes - 1);
       } else {
-        await axios.post(`http://localhost:5000/api/reels/${reel._id}/like`, null, {
+        await axios.post(`https://back-nipj.onrender.comapi/reels/${reel._id}/like`, null, {
           headers: {
             'x-auth-token': token
           }
@@ -76,7 +76,7 @@ const Reel = ({ reel, currentUser, onLike, onComment }) => {
     try {
       const token = localStorage.getItem('auth-token');
       const response = await axios.post(
-        `http://localhost:5000/api/reels/${reel._id}/comment`,
+        `https://back-nipj.onrender.comapi/reels/${reel._id}/comment`,
         { text: commentText },
         {
           headers: {

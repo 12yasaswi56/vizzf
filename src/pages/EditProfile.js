@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Avatar, Button, TextField, Typography, Box, CircularProgress, Alert } from '@mui/material';
 import '../pagesCss/EditProfile.css';
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const EditProfile = () => {
   const { userId } = useParams();

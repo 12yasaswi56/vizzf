@@ -73,7 +73,7 @@ const ReelUpload = () => {
       }
   
       const response = await axios.post(
-        'http://localhost:5000/api/reels', 
+        'https://back-nipj.onrender.comapi/reels', 
         formData,
         {
           headers: {

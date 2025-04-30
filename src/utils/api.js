@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api"; // Changed from "/api/auth"
+const API_URL = "https://back-nipj.onrender.comapi"; // Changed from "/api/auth"
 
 const api = axios.create({
     baseURL: API_URL
