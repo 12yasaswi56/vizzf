@@ -48,7 +48,7 @@ import SlideshowIcon from "@mui/icons-material/Slideshow";
 
 
 // Define API base URL
-const API_BASE_URL = "https://back-nipj.onrender.com//api";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const Home = () => {
     // ... (your existing state)
