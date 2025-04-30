@@ -54,6 +54,7 @@ const [call, setCall] = useState({
   type: null, // 'audio' or 'video'
   otherUser: null
 })
+const [showMobileChat, setShowMobileChat] = useState(false);
 // Add these state variables near the top of your component
 const [showGroupCreationDialog, setShowGroupCreationDialog] = useState(false);
 const [groupName, setGroupName] = useState('');
@@ -850,7 +851,22 @@ const updateUnreadCounts = async () => {
   }
 };
 
+// Modify the conversation item click handler
+const handleConversationClick = (conversation) => {
+  setActiveConversation(conversation);
+  if (window.innerWidth <= 768) {
+    setShowMobileChat(true);
+  }
+};
 
+// Update the back button handler
+const handleBackClick = () => {
+  if (window.innerWidth <= 768) {
+    setShowMobileChat(false);
+  } else {
+    setActiveConversation(null);
+  }
+};
 useEffect(() => {
   const handleClickOutside = (event) => {
     if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
@@ -1502,7 +1518,7 @@ const GroupInfoModal = ({ conversation, onClose, currentUser }) => {
 <GroupCreationDialog />
 <DeleteConversationDialog />.
       {/* Left Panel - Conversations List */}
-      <div className="conversations-panel">
+      <div className={`conversations-panel ${showMobileChat ? 'hidden' : ''}`}>
         <div className="search-container">
           <div className="search-input-container">
             <SearchIcon className="search-icon" />
@@ -1561,7 +1577,7 @@ const GroupInfoModal = ({ conversation, onClose, currentUser }) => {
                 <div 
                   key={conversation._id} 
                   className={`conversation-item ${activeConversation?._id === conversation._id ? 'active' : ''}`}
-                  onClick={() => setActiveConversation(conversation)}
+                  onClick={() => handleConversationClick(conversation)}
                 >
                   <Avatar src={getConversationImage(conversation)} />
                   <div className="conversation-info">
@@ -1582,13 +1598,14 @@ const GroupInfoModal = ({ conversation, onClose, currentUser }) => {
       </div>
 
       {/* Right Panel - Active Conversation */}
-      <div className="conversation-panel">
+      <div className={`conversation-panel ${showMobileChat ? 'active' : ''}`}>
         {activeConversation ? (
           <>
             <div className="conversation-header">
               <button 
                 className="back-button"
-                onClick={() => setActiveConversation(null)}
+                // onClick={() => setActiveConversation(null)}
+                onClick={handleBackClick}
               >
                 <ArrowBackIcon />
               </button>
