@@ -189,7 +189,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import '../pagesCss/StoryUpload.css';
 
 // API base URL
-const API_BASE_URL = "https://back-nipj.onrender.com//api";
+const API_BASE_URL = "https://back-nipj.onrender.com/api";
 
 const StoryUpload = ({ onClose, onSuccess, currentUser }) => {
   const [caption, setCaption] = useState('');
