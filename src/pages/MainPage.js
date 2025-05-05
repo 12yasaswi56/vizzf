@@ -25,7 +25,7 @@ const MainPage = () => {
       title: "Job Search",
       description: "Find job opportunities tailored to your skills and experience. Apply with just a few clicks.",
       color: "#45B7D1",
-      onClick: () => navigate('/jobs')
+      onClick: () => window.open("https://vizz-2.onrender.com", "_blank")
     },
     {
       title: "Paper",
